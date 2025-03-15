@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+    <!-- Opcional: Adicione ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="static/images/ico.ico">
+        
+</head>
+<body>
+    <!-- Menu Lateral -->
+    <nav class="sidebar" id = "sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="MyTech Logo" class="logo-img">
+        </div>
+        
+
+        <ul class="menu-items">
+            <li><a href="/menu"><i class="fa fa-desktop"></i><span>Painel</span></a></li>
+            <li><a href="/cadastro"><i class="fas fa-user-plus"></i><span>Cadastro</span></a></li>
+            <li><a href="/retornos"><i class="fa-solid fa-clock-rotate-left"></i><span>Retornos</span></a></li>
+            <li><a href="/integracao"><i class="fa-solid fa-code"></i><span>Integração</span></a></li>
+            <button class="lock-btn" id="toggleLock">🔒</button>
+        </ul>
+    </nav>
+
+    <header class="header">
+        <div class="profile" onclick="toggleMenu()">
+            <span class="profile-name"></span>
+            <img src="https://cdn-icons-png.flaticon.com/512/6326/6326055.png" alt="Foto do usuário" class="profile-img">
+            <div class="profile-menu" id="profileMenu">
+                <a href="#"><i class="fas fa-cog"></i> Configuração</a>
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Header -->
+        
+
+        <!-- Conteúdo -->
+        <div class="content">
+            <h1>Bem-vindo ao Painel</h1>
+            <p>Dashboard de situações:</p>
+            <br> </br>
+            <div class="dashboard-grid">
+               
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <h3>Logística Reversa</h3>
+                    </div>
+                    <div class="card-content">
+                        <span class="stat-number loading" id="em-devolucao">-</span>
+                        <div class="card-footer">
+                            <span>Atualizado agora há pouco</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-tools"></i>
+                        <h3>Recebido CD</h3>
+                    </div>
+                    <div class="card-content">
+                        <span class="stat-number loading" id="recebido-cd">-</span>
+                        <div class="card-footer">
+                            <span>Atualizado agora há pouco</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-tools"></i>
+                        <h3>Manutenção</h3>
+                    </div>
+                    <div class="card-content">
+                        <span class="stat-number loading" id="em-conserto">-</span>
+                        <div class="card-footer">
+                            <span>Atualizado agora há pouco</span>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-laptop"></i>
+                        <h3>Em expedição</h3>
+                    </div>
+                    <div class="card-content">
+                        <span class="stat-number loading" id="em-expedicao">-</span>
+                        <div class="card-footer">
+                            <span>Atualizado agora há pouco</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Enviado</h3>
+                    </div>
+                    <div class="card-content">
+                        <span class="stat-number loading" id="enviado">-</span>
+                        <div class="card-footer">
+                            <span>Atualizado agora há pouco</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Entregue</h3>
+                    </div>
+                    <div class="card-content">
+                        <span class="stat-number loading" id="entregue">-</span>
+                        <div class="card-footer">
+                            <span>Atualizado agora há pouco</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-container">
+                    <canvas id="comparativoChart"></canvas>
+                </div>
+                <div class="chart-container2">
+                    <canvas id="comparativoChart2"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script>
+
+    async function verificarSessao() {
+            try {
+            const resposta = await fetch("/verificar_login", {
+                method: "GET",
+                credentials: "include", // Envia os cookies automaticamente
+            });
+
+            const dados = await resposta.json();
+            const profileNameElement = document.querySelector(".profile-name");
+            if (profileNameElement) {
+                profileNameElement.textContent = dados.user; // Substitui "Admin" pelo nome do usuário
+            }
+            
+            if (dados.logged_in) {
+                if (window.location.pathname !== "/menu") {
+                    window.location.href = "/menu"; // Redireciona apenas se necessário
+                }
+            } else {
+                if (window.location.pathname !== "/") {
+                    window.location.href = "/"; // Redireciona apenas se necessário
+                }
+            }
+        } catch (erro) {
+            console.error("Erro ao verificar sessão:", erro);
+        }
+    }
+
+    // Executa apenas quando a página carregar completamente
+    document.addEventListener("DOMContentLoaded", verificarSessao);
+
+        async function logout() {
+            await fetch("/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            alert("Logout realizado!");
+            window.location.href = "/";
+        }
+        function toggleMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', function(event) {
+            const profileMenu = document.getElementById('profileMenu');
+            const profile = document.querySelector('.profile');
+            
+            if (!profile.contains(event.target)) {
+                profileMenu.classList.remove('active');
+            }
+        });
+
+    async function obterContagemStatus() {
+        try {
+            const resposta = await fetch("/contagem_status"); // Faz a requisição para o Flask
+            const resultado = await resposta.json(); // Converte a resposta para JSON
+
+            console.log("Resposta da API:", resultado); // Debug: Veja os dados recebidos
+            
+            
+            if (resultado.status === "success" && resultado.data) {
+                const dados = resultado.data; 
+                console.log("Dados recebidos para atualizar interface:", dados);
+                atualizarInterface(dados);
+            } else {
+                console.error("Erro ao buscar os dados:", resultado.message || "Resposta inesperada");
+            }
+        } catch (erro) {
+            console.error("Erro na requisição:", erro);
+        }
+    }
+
+
+    async function obterContagemvalores() {
+        try {
+            const resposta = await fetch("/obter_valores"); // Faz a requisição para o Flask
+            const resultado = await resposta.json(); // Converte a resposta para JSON
+
+            console.log("Resposta da API:", resultado); // Debug: Veja os dados recebidos
+            
+            
+            if (resultado.status === "success" && resultado.data) {
+                const dados = resultado.data; 
+                console.log("Dados recebidos para atualizar interface:", dados);
+                criarGraficoComparativo2(dados);
+            } else {
+                console.error("Erro ao buscar os dados:", resultado.message || "Resposta inesperada");
+            }
+        } catch (erro) {
+            console.error("Erro na requisição:", erro);
+        }
+    }
+
+
+function atualizarInterface(dados) {
+    if (!dados) {
+        console.error("Erro: Nenhum dado foi recebido!");
+        return;
+    }
+
+    const statusFormatado = {
+        emConserto: dados.emConserto || 0,
+        emExpedicao: dados.emExpedicao || 0,
+        enviados: dados.enviados || 0,
+        emDevolucao: dados.emDevolucao || 0,
+        recebidoCD: dados.recebidoCD || 0,
+        entregue: dados.entregue || 0
+    };
+
+    // Atualizar os cards da interface
+    document.getElementById('em-conserto').classList.remove('loading');
+    document.getElementById('em-conserto').textContent = statusFormatado.emConserto;
+
+    document.getElementById('em-expedicao').classList.remove('loading');
+    document.getElementById('em-expedicao').textContent = statusFormatado.emExpedicao;
+
+    document.getElementById('em-devolucao').classList.remove('loading');
+    document.getElementById('em-devolucao').textContent = statusFormatado.emDevolucao;
+
+    document.getElementById('enviado').classList.remove('loading');
+    document.getElementById('enviado').textContent = statusFormatado.enviados;
+
+    document.getElementById('recebido-cd').classList.remove('loading');
+    document.getElementById('recebido-cd').textContent = statusFormatado.recebidoCD;
+
+    document.getElementById('entregue').classList.remove('loading');
+    document.getElementById('entregue').textContent = statusFormatado.entregue;
+
+    criarGraficoComparativo(statusFormatado);
+    
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(() => {
+    obterContagemStatus();
+    obterContagemvalores();
+    }, 1500);
+    });
+
+
+    function criarGraficoComparativo(statusFormatado) {
+        const ctx = document.getElementById('comparativoChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Em Devolução', 'Em Conserto', 'Em expedição', 'Enviados', 'Recebido CD','Entregue'],
+                datasets: [{
+                    label: 'Comparativo de Status',
+                    data: [statusFormatado.emDevolucao, statusFormatado.emConserto, statusFormatado.emExpedicao, statusFormatado.enviados, statusFormatado.recebidoCD, statusFormatado.entregue  ],
+                    backgroundColor: [
+                        'rgba(3, 2, 2, 1)',
+                        'rgba(0, 128, 128, 1)',
+                        'rgba(75, 0, 130, 1)',
+                        'rgba(139, 0, 139, 1)',
+                        'rgba(128, 0, 0, 1)',
+                        'rgba(23, 185, 85, 1)'
+                    ],
+                    borderColor: [
+                        'rgba(3, 2, 2, 1)',
+                        'rgba(0, 128, 128, 1)',
+                        'rgba(75, 0, 130, 1)',
+                        'rgba(139, 0, 139, 1)',
+                        'rgba(128, 0, 0, 1)',
+                        'rgba(23, 185, 85, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Comparativo de Status'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 15
+                        }
+                    }
+                }
+            }
+        }); 
+    }
+    
+    function criarGraficoComparativo2(statusFormatado) {
+    const ctx2 = document.getElementById('comparativoChart2').getContext('2d');
+
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: ['SEDEX', 'PAC', 'OUTROS'],
+            datasets: [{
+                label: 'Comparativo de valor de Logística',
+                data: [
+                    statusFormatado.SEDEX || 0, 
+                    statusFormatado.PAC || 0, 
+                    statusFormatado.OUTROS || 0
+                ],
+                backgroundColor: [
+                    'rgba(3, 2, 2, 1)',
+                    'rgba(0, 128, 128, 1)',
+                    'rgba(75, 0, 130, 1)',
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)',
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Comparativo de valor de Logística'
+                },
+                datalabels: {
+                    color: 'white', // Cor dos valores
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    },
+                    formatter: (value, context) => {
+                        return value; // Mostra os valores no gráfico
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels] // Adiciona o plugin de Data Labels
+    });
+}
+
+
+document.querySelector('.lock-btn').addEventListener('click', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    sidebar.classList.toggle('locked');
+    
+    // Salvar o estado da sidebar no localStorage
+    if (sidebar.classList.contains('locked')) {
+        localStorage.setItem('sidebarLocked', 'true');
+        lockBtn.textContent = '🔓'; // Muda para o ícone de cadeado destravado
+    } else {
+        localStorage.setItem('sidebarLocked', 'false');
+        lockBtn.textContent = '🔒'; // Muda para o ícone de cadeado travado
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    const lockStatus = localStorage.getItem('sidebarLocked');
+    
+    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
+    if (lockStatus === 'true') {
+        sidebar.classList.add('locked');
+        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+    } else {
+        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+    }
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/retornos.css') }}">
+    <!-- Opcional: Adicione ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="static/images/ico.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        
+</head>
+<body>
+    <!-- Menu Lateral -->
+    <nav class="sidebar" id ="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="MyTech Logo" class="logo-img">
+        </div>
+
+        <ul class="menu-items">
+            <li><a href="/menu"><i class="fa fa-desktop"></i><span>Painel</span></a></li>
+            <li><a href="/cadastro"><i class="fas fa-user-plus"></i><span>Cadastro</span></a></li>
+            <li><a href="/retornos"><i class="fa-solid fa-clock-rotate-left"></i><span>Retornos</span></a></li>
+            <li><a href="/integracao"><i class="fa-solid fa-code"></i><span>Integração</span></a></li>
+            <button class="lock-btn" id="toggleLock">🔒</button>
+
+        </ul>
+    </nav>
+
+    <header class="header">
+        <div class="profile" onclick="toggleMenu()">
+            <span class="profile-name"></span>
+            <img src="https://cdn-icons-png.flaticon.com/512/6326/6326055.png" alt="Foto do usuário" class="profile-img">
+            <div class="profile-menu" id="profileMenu">
+                <a href="#"><i class="fas fa-cog"></i> Configuração</a>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </div>
+        </div>
+    </header>
+
+    
+    <main class="main-content">
+        <form class="filter" id="filter" onsubmit="submitForm(event)">
+            <div class="dashboard-grid">
+                <!-- Card Nome -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <input id="data_inicio" name = "data_inicio" type="date">
+                    </div>
+                </div>
+    
+                <!-- Card Documento -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <input id="data_fim" name = "data_fim" type="date">
+                    </div>
+                </div>
+    
+                <!-- Card Postagem -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <input id="postagem" name = "postagem" placeholder="Código de postagem" type = "text">
+                    </div>
+                </div>
+    
+                <!-- Card Tipo de Devolução -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <select id="tipo" name = "tipo" >
+                            <option value="" selected hidden>Tipo de retorno</option>
+                            <option value=""></option>
+                            <option value="Conserto">Conserto</option>
+                            <option value="Troca">Troca</option>
+                            <option value="Orçamento">Orçamento</option>
+                        </select>
+                    </div>
+                </div>
+    
+                <!-- Card Situação -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <select id="situacao" name="situacao">
+                            <option value="" selected hidden>Status</option>
+                            <option value=""></option>
+                            <option value="Em devolução">Em devolução</option>
+                            <option value="Recebido CD">Recebido CD</option>
+                            <option value="Manutenção">Manutenção</option>
+                            <option value="Em expedição">Em expedição</option>
+                            <option value="Enviado">Enviado</option>
+                            <option value="Entregue">Entregue</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="dashboard-card">  
+                    <div class="card-header">      
+                        <button class="btn" type="submit">Filtrar</button>
+                    </div>  
+                </div>
+            </div>
+        </form>
+        
+        </div>
+        <div class="params">
+            <button class="printer" disabled>
+                <i class="fa-solid fa-print" ></i> Imprimir
+            </button>
+            <button class="edit" disabled onclick="editOrder()">
+                <i class="fa-solid fa-edit"></i> Editar
+            </button>
+        </div>
+        <div class="dashboard-container">
+        
+        
+            <!-- Tabela -->
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="select-row"></th>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Nome</th>
+                        <th>N Postagem</th>
+                        <th>Tipo</th>
+                        <th>Situação</th>
+                        <th class="ultima_coluna">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id = "body-table">
+                </tbody>
+            </table>
+        </div>
+        
+        
+        <dialog id="editModal" class="modal">
+            <div class="modal-content">
+                
+                <div class="tabs">
+                    <button class="tab-button active" onclick="openTab(event, 'pedidoTab')">Pedido</button>
+                    <button class="tab-button" onclick="openTab(event, 'expedicaoTab')">Expedição</button>
+                
+                </div>
+                <h3>Dados</h3>
+                <form id="editForm">
+                    <!-- ABA PEDIDO -->
+                    <div id="pedidoTab" class="tab-content active">
+                        <div class="form-grid">
+                            <div>
+                                <label for="id">ID:</label>
+                                <input type="text" id="id_modal" name="id" readonly>
+        
+                                <label for="data">Data:</label>
+                                <input type="text" id="data_modal" name="data">
+        
+                                <label for="nome">Nome:</label>
+                                <input type="text" id="nome_modal" name="nome">
+        
+                                <label for="postagem">Postagem:</label>
+                                <input type="text" id="postagem_modal" name="postagem">
+        
+                                <label for="tipo_devolucao">Tipo de Devolução:</label>
+                                <input type="text" id="tipo_devolucao_modal" name="tipo_devolucao">
+
+                                <label for="status">Status:</label>
+                                <select id="status_modal" name="tipo" required>
+                                    <option value="0"></option>
+                                    <option value="emdevolução">Em devolução</option>
+                                    <option value="recebidocd">Recebido CD</option>
+                                    <option value="manutenção">Manutenção</option>
+                                    <option value="enviado">Enviado</option>
+                                    <option value="Entregue">Entregue</option>
+                                </select>
+        
+                                <label for="documento">Documento:</label>
+                                <input type="text" id="documento_modal" name="documento">
+                            </div>
+        
+                            <div>
+                               
+                                <label for="cep">CEP:</label>
+                                <input type="text" id="cep_modal" name="cep">
+        
+                                <label for="logradouro">Logradouro:</label>
+                                <input type="text" id="logradouro_modal" name="logradouro">
+
+                                <label for="status">Numero:</label>
+                                <input type="text" id="numero_modal" name="status">
+
+                                <label for="status">Complemento:</label>
+                                <input type="text" id="complemento_modal" name="status">
+
+                                <label for="status">UF:</label>
+                                <input type="text" id="uf_modal" name="status">
+
+                                <label for="status">Cidade:</label>
+                                <input type="text" id="cidade_modal" name="status">
+                            </div>
+                        </div>
+                    </div>
+        
+                    <!-- ABA EXPEDIÇÃO -->
+                    <div id="expedicaoTab" class="tab-content">
+                        <div class="form-grid">
+                            <div>
+                                <label for="preco">Preço:</label>
+                                <input type="text" id="preco_modal" name="preco" value="00.00">
+
+                                <label for="tipo_envio">Tipo de Envio:</label>
+                                <input type="text" id="tipo_envio_modal" name="tipo_envio">
+                            </div>
+        
+                            <div>
+                                <label for="modalidade_envio">Modalidade de Envio:</label>
+                                <input type="text" id="modalidade_envio_modal" name="modalidade_envio">
+        
+                                <label for="rastreio">Rastreamento:</label>
+                                <input type="text" id="rastreio_modal" name="rastreio">
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="buttons">
+                        <button type="submit">Salvar</button>
+                        <button type="button" id="closeModal" onclick="closeModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
+
+
+        <!-- Modal de confirmação -->
+        <dialog id="statusModal" class="modalacao">
+            <div class="modal-content">
+                <h3 id="status-message"></h3>
+                <form id="statusforms">
+                <div id="statusForm"></div> <!-- Formulário dinâmico -->
+                </form>
+                <div class="buttons">
+                    <button type="button" id="cancelBtn" onclick="closeStatusModal()">Cancelar</button>
+                    <button type="button" id="confirmBtn">Confirmar</button>
+                </div>
+            </div>
+        </dialog>
+    
+<script>
+     
+   
+    let idToPrint = [];
+    let listaDados = []; // Variável global para armazenar os dados
+    let nextStatus = ""; // Variável global para armazenar o próximo status
+        
+            document.addEventListener("DOMContentLoaded", function () {
+                
+                let tbody = document.getElementById("body-table");
+                tbody.addEventListener('change', function(event) {
+                    if (event.target && event.target.classList.contains('row-checkbox')) {
+                        
+                        checkPrinterVisibility();
+                    }
+                });
+
+                // Função para verificar se algum checkbox está marcado
+    function checkPrinterVisibility() {
+        const checkboxes = document.querySelectorAll('.row-checkbox'); // Seleciona todos os checkboxes
+        const printerDiv = document.querySelector('.printer'); // Seleciona o elemento da impressora
+        const editDiv = document.querySelector('.edit'); // Seleciona o elemento de edição
+
+        let receivedCDFound = false; // Flag para indicar se há "Recebido CD"
+        let isAnyChecked = false; // Flag para indicar se há qualquer checkbox marcado
+
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                isAnyChecked = true; // Pelo menos um checkbox está marcado
+
+                const row = checkbox.closest('tr');
+                const statusColumn = row.querySelector('.header_status');
+                const idColumn = row.querySelector('.id');
+
+                if (statusColumn && idColumn) {
+                    const statusText = statusColumn.textContent.trim();
+                    const idText = idColumn.textContent.trim();
+
+                    if (statusText === "Recebido CD") {
+                        receivedCDFound = true; // Achou pelo menos um "Recebido CD"
+                        if (!idToPrint.includes(idText)) {
+                            idToPrint.push(idText);
+                        }
+                    }
+                }
+            } else {
+                // Se o checkbox foi desmarcado, remove da lista se existir
+                const row = checkbox.closest('tr');
+                const idColumn = row.querySelector('.id');
+                if (idColumn) {
+                    const idText = idColumn.textContent.trim();
+                    const index = idToPrint.indexOf(idText);
+                    if (index !== -1) {
+                        idToPrint.splice(index, 1);
+                    }
+                }
+            }
+        });
+
+    // Atualiza os botões com base nas flags
+        if (isAnyChecked) {
+            editDiv.removeAttribute("disabled"); // Sempre habilita a edição
+            if (receivedCDFound) {
+                printerDiv.removeAttribute("disabled"); // Só habilita a impressora se tiver "Recebido CD"
+            } else {
+                printerDiv.setAttribute("disabled", "");
+            }
+        } else {
+            // Nenhum checkbox marcado, desabilita tudo
+            printerDiv.setAttribute("disabled", "");
+            editDiv.setAttribute("disabled", "");
+        }
+    }
+                fetch('/dados_retornos')
+                    .then(response => response.json())
+                    .then(data => {
+
+                        if (Array.isArray(data)) {
+                            data.forEach(pedido => {
+                                
+                            });
+                        } else {
+                            console.error("Esperado um array, mas recebemos:", data);
+                        }
+                        listaDados = data;
+                        let tbody = document.getElementById("body-table");
+                        tbody.innerHTML = "";
+        
+                        const statusFlow = ["Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
+        
+                        data.forEach(item => {
+                            
+                            let row = document.createElement("tr");
+                            row.setAttribute("data-id", item.id);
+                            let currentStatus = item.status.trim();
+                            let current = item.status;
+                            status_atual = current
+                            let currentIndex = statusFlow.indexOf(currentStatus);
+                            nextStatus = currentIndex !== -1 && currentIndex < statusFlow.length - 1 ? statusFlow[currentIndex + 1] : currentStatus; // Atualiza a variável global nextStatus
+                
+                            // Definir ícone baseado no status
+                            let iconClass = "";
+                            switch (nextStatus) {
+                                case "Em devolução":
+                                    iconClass = "fa-undo";
+                                    break;
+                                case "Recebido CD":
+                                    iconClass = "fa-box-open";
+                                    break;
+                                case "Manutenção":
+                                    iconClass = "fa-tools";
+                                    break;
+                                case "Enviado":
+                                    iconClass = "fa-truck";
+                                    break;
+                                case "Entregue":
+                                    iconClass = "fa-check-circle";
+                                    break;
+                                default:
+                                    iconClass = "fa-question-circle";
+                            }
+        
+                            let bgColor = "";
+                            switch (current) {
+                                case "Em devolução":
+                                    bgColor = "#030202";
+                                    break;
+                                case "Recebido CD":
+                                    bgColor = "#800000";
+                                    break;
+                                case "Manutenção":
+                                    bgColor = "#008080";
+                                    break;
+                                case "Expedição":
+                                    bgColor = "#4B0082";
+                                    break;
+                                case "Enviado":
+                                    bgColor = "#8B008B";
+                                    break;
+                                case "Entregue":
+                                    bgColor = "#17b955";
+                                    break;
+                                default:
+                                    bgColor = "#17b955";
+                            }
+        
+                            row.innerHTML = `
+                                <td><input type="checkbox" class="row-checkbox"></td>
+                                <td class = "id">${item.id}</td>
+                                <td>${item.data_cadastro}</td>
+                                <td>${item.nome_completo}</td>
+                                <td>${item.postagem}</td>
+                                <td>${item["tipo_devolucao"]}</td>
+                                <td class="status-cell">
+                                    <div class="header_status" style="background-color: ${bgColor}; color: white;">
+                                        <b>${item.status} </b>
+                                    </div>
+                                </td>
+                                <td class = "situacao_coluna">
+                                    <div class="header_situacao">
+                                        <button class="alterar_situacao" type="submit">
+                                            <i class="fa ${iconClass}"></i> ${nextStatus}
+                                        </button>
+                                        
+                                    </div>
+    
+                                </td>
+                            `;
+        
+                            tbody.appendChild(row);
+                            if (currentStatus === "Entregue") {
+                    // Seleciona o botão da linha específica e oculta
+                                row.querySelector(".header_situacao").style.visibility = "hidden";
+                            }
+                        });
+                    })
+                    .catch(error => console.error("Erro ao buscar dados:", error));
+            });
+        
+            document.addEventListener("DOMContentLoaded", function () {
+                const checkboxes = document.querySelectorAll(".row-checkbox");
+        
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener("change", function () {
+                        const algumMarcado = [...checkboxes].some(cb => cb.checked);
+                        editPedDiv.style.display = algumMarcado ? "block" : "none";
+                    });
+                });
+            });
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("body-table").addEventListener("click", function (event) {
+                if (event.target.closest(".alterar_situacao")) {
+                    const row = event.target.closest("tr");
+                    const id = row.getAttribute("data-id");
+                    const item = listaDados.find(item => item.id == id);
+
+                    if (!item) {
+                        console.error("Erro: Item não encontrado!", { id });
+                        return;
+                    }
+
+                    const nextStatus = getNextStatus(item.status.trim());
+                    document.getElementById("status-message").textContent = 
+                        `Tem certeza que deseja alterar o status para "${nextStatus}"?`;
+
+                    loadStatusForm(nextStatus);
+                    
+
+                    document.getElementById("statusModal").showModal();
+                    document.getElementById("confirmBtn").onclick = function () {
+                        confirmStatusChange(id, nextStatus);
+                        closeStatusModal();
+                        setTimeout(() => {
+                            window.location.href = '/retornos';
+                        }, 2000);
+                    };
+                }
+            });
+        });
+
+
+
+    function confirmStatusChange(id, nextStatus) {
+        const form = document.getElementById("statusforms");
+
+
+        const formData = new FormData(form); // Captura todos os inputs automaticamente
+        // 🛑 Adicione logs antes de enviar a requisição
+        // Converter FormData para um objeto
+        let data = Object.fromEntries(formData);
+
+        // Garantir que ID e Status estão no corpo da requisição
+        data.id = id;
+        data.status = nextStatus;
+
+        console.log("📌 Conteúdo do form após atualização:", data);
+
+
+        // ⚠️ Verificação antes de enviar para o servidor
+        if (!id || !nextStatus) {
+            console.error("❌ Erro: Status ou ID não definidos corretamente!", { id, nextStatus });
+            return;
+        }
+
+
+        fetch('/alterarsituacao', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data) // Converte FormData para JSON
+        })
+        .then(response => response.json())
+        .then(data => {
+            closeStatusModal();
+        })
+        .catch(error => {
+            console.error('❌ Erro ao enviar requisição:', error);
+            closeStatusModal();
+        });
+    }
+
+    function getNextStatus(currentStatus) {
+        const statusFlow = ["Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
+        const currentIndex = statusFlow.indexOf(currentStatus);
+        return currentIndex < statusFlow.length - 1 ? statusFlow[currentIndex + 1] : currentStatus;
+    }
+
+    function closeStatusModal() {
+        const statusModal = document.getElementById("statusModal");
+        statusModal.close();
+    }
+
+    function loadStatusForm(status) {
+    let formHtml = "";
+    switch (status) {
+        case "Recebido CD":
+            formHtml = `
+                <label for="data_recebimento">Data de Recebimento:</label>
+                <input type="date" id="data_recebimento" name="data_recebimento">
+                <label for="observacao">Observação:</label>
+                <input type="text" id="observacao" name="observacao" cols="50">
+            `;
+            break;
+        case "Manutenção":
+            formHtml = `
+                <label for="data_assistencia">Data de Assistência:</label>
+                <input type="date" id="data_assistencia" name="data_assistencia">
+            `;
+            break;
+        case "Expedição":
+            formHtml = `
+                <label for="tecnico">Técnico Responsável:</label>
+                <input type="text" id="tecnico" name="tecnico">
+                <label for="detalhes">Detalhes da Manutenção:</label>
+                <input type="text" id="detalhes" name="detalhes">
+            `;
+            break;
+        case "Enviado":
+            formHtml = `
+                <label for="data_enviado">Data:</label>
+                <input type="date" id="data_enviado" name="data_enviado">
+                <div class="expedicao">
+                    <label for="rastreamento">Rastreamento:</label>
+                    <input type="text" id="rastreamento" name="rastreamento">
+                    <label for="tipo">Tipo:</label>
+                    <input type="text" id="tipo" name="tipo">
+                    <label for="transportadora">Transportadora:</label>
+                    <input type="text" id="transportadora" name="transportadora">
+                </div>
+                <label for="preco_modal">Valor:</label>
+                <input type="text" id="preco_modal" name="preco">
+            `;
+            break;
+        default:
+            formHtml += `<p>Nenhuma informação adicional necessária.</p>`;
+    }
+    document.getElementById("statusForm").innerHTML = formHtml;
+}
+
+    async function verificarSessao() {
+            try {
+            const resposta = await fetch("/verificar_login", {
+                method: "GET",
+                credentials: "include", // Envia os cookies automaticamente
+            });
+
+            const dados = await resposta.json();
+            const profileNameElement = document.querySelector(".profile-name");
+            if (profileNameElement) {
+                profileNameElement.textContent = dados.user; // Substitui "Admin" pelo nome do usuário
+            }
+            
+            if (dados.logged_in) {
+                if (window.location.pathname !== "/retornos") {
+                    window.location.href = "/retornos"; // Redireciona apenas se necessário
+                }
+            } else {
+                if (window.location.pathname !== "/") {
+                    window.location.href = "/"; // Redireciona apenas se necessário
+                }
+            }
+        } catch (erro) {
+            console.error("Erro ao verificar sessão:", erro);
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", verificarSessao);
+
+    function toggleMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+        }
+
+    
+    document.addEventListener('click', function(event) {
+        const profileMenu = document.getElementById('profileMenu');
+        const profile = document.querySelector('.profile');
+        
+        if (!profile.contains(event.target)) {
+            profileMenu.classList.remove('active');
+        }
+    });
+
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    // Seleciona todos os checkboxes com a classe "row-checkbox"
+    const checkboxes = document.querySelectorAll('.row-checkbox');
+    const printerDiv = document.querySelector('.printer');
+
+    // Verifique se os checkboxes estão sendo selecionados corretamente
+
+
+    // Adiciona um ouvinte de evento de "change" para cada checkbox
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            checkPrinterVisibility();  // Chama a função quando o estado do checkbox mudar
+        });
+    });
+});
+
+function imprimir_etiquetas() {
+    if (idToPrint) {
+        // Garante que o id foi selecionado
+        window.open(`/imprimir_etiquetas?id=${idToPrint}`, '_blank');
+    } else {
+        console.log("Nenhum ID selecionado.");
+    }
+}
+
+function editOrder() {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked'); // Pega todos os checkboxes marcados
+    const selectedIds = [];
+
+    checkboxes.forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const idColumn = row.querySelector('.id');
+        if (idColumn) {
+            const idText = idColumn.textContent.trim();
+            selectedIds.push(idText); // Adiciona os IDs dos pedidos selecionados
+        }
+    });
+
+    if (selectedIds.length === 1) {
+        // Redireciona para a página de edição do pedido
+        window.location.href = `/orders/${selectedIds[0]}`;
+    } else {
+        alert("Por favor, selecione exatamente um pedido para editar.");
+    }
+}
+// Adiciona um listener ao botão para chamar a função imprimir_etiquetas
+    document.querySelector('.printer').addEventListener('click', imprimir_etiquetas);
+    function submitForm(event) {
+    event.preventDefault();  // Evita o envio padrão do formulário
+    
+    // Obtém os dados do formulário
+    const formData = new FormData(document.getElementById('filter'));
+    const data = Object.fromEntries(formData.entries()); // Converte para objeto JSON
+
+    fetch('/buscar', {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Exibe a resposta do servidor
+        if (data.status === 'success') {
+
+            console.log(data);
+
+            // Limpa a tabela antes de adicionar os novos dados
+            const tabela = document.getElementById("body-table");
+            tabela.innerHTML = '';  // Limpa os dados antigos
+
+            const statusFlow = ["Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
+            data.data.forEach(item => {
+                // Criar uma nova linha
+                const row = document.createElement("tr");
+
+    
+                row.setAttribute("data-id", item.id);
+                let currentStatus = item.status.trim();
+                let current = item.status;
+                status_atual = current
+                let currentIndex = statusFlow.indexOf(currentStatus);
+                nextStatus = currentIndex !== -1 && currentIndex < statusFlow.length - 1 ? statusFlow[currentIndex + 1] : currentStatus; // Atualiza a variável global nextStatus
+    
+                // Definir ícone baseado no status
+                let iconClass = "";
+                switch (nextStatus) {
+                    case "Em devolução":
+                        iconClass = "fa-undo";
+                        break;
+                    case "Recebido CD":
+                        iconClass = "fa-box-open";
+                        break;
+                    case "Manutenção":
+                        iconClass = "fa-tools";
+                        break;
+                    case "Enviado":
+                        iconClass = "fa-truck";
+                        break;
+                    case "Entregue":
+                        iconClass = "fa-check-circle";
+                        break;
+                    default:
+                        iconClass = "fa-question-circle";
+                }
+
+                let bgColor = "";
+                switch (current) {
+                    case "Em devolução":
+                        bgColor = "#030202";
+                        break;
+                    case "Recebido CD":
+                        bgColor = "#800000";
+                        break;
+                    case "Manutenção":
+                        bgColor = "#008080";
+                        break;
+                    case "Expedição":
+                        bgColor = "#4B0082";
+                        break;
+                    case "Enviado":
+                        bgColor = "#8B008B";
+                        break;
+                    case "Entregue":
+                        bgColor = "#17b955";
+                        break;
+                    default:
+                        bgColor = "#17b955";
+                }
+
+                row.innerHTML = `
+                    <td><input type="checkbox" class="row-checkbox"></td>
+                    <td class="id">${item.id}</td>
+                    <td>${item.data_cadastro}</td>
+                    <td>${item.nome_completo}</td>
+                    <td>${item.postagem}</td>
+                    <td>${item["tipo_devolucao"]}</td>
+                    <td class="status-cell">
+                        <div class="header_status" style="background-color: ${bgColor}; color: white;">
+                            <b>${item.status}</b>
+                        </div>
+                    </td>
+                    <td class="situacao_coluna">
+                        <div class="header_situacao">
+                            <button class="alterar_situacao" type="submit">
+                                <i class="fa ${iconClass}"></i> ${nextStatus}
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                // Adicionar a linha à tabela
+                tabela.appendChild(row);
+                if (currentStatus === "Entregue") {
+                    // Seleciona o botão da linha específica e oculta
+                                row.querySelector(".header_situacao").style.visibility = "hidden";
+                            }
+            });
+
+        } else {
+            const tabela = document.getElementById("body-table");
+            tabela.innerHTML = '';
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td colspan="8" style="text-align: center; font-size: 18px; color: gray;">
+                    <i class="fa fa-search" style="font-size: 24px; color: #bbb;"></i> 
+                    Nenhum resultado encontrado para essa busca.
+                </td>
+            `;
+            tabela.appendChild(row);
+        }
+
+    })
+    .catch(error => console.error('Erro na requisição:', error));
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockStatus = localStorage.getItem('sidebarLocked');
+    
+    if (lockStatus === 'true') {
+        sidebar.classList.add('locked');
+        lockBtn.textContent = '🔓';
+    }
+});
+
+// Evento para travar e destravar a sidebar
+document.querySelector('.lock-btn').addEventListener('click', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    sidebar.classList.toggle('locked');
+    
+    // Salvar o estado da sidebar no localStorage
+    if (sidebar.classList.contains('locked')) {
+        localStorage.setItem('sidebarLocked', 'true');
+        lockBtn.textContent = '🔓'; // Muda para o ícone de cadeado destravado
+    } else {
+        localStorage.setItem('sidebarLocked', 'false');
+        lockBtn.textContent = '🔒'; // Muda para o ícone de cadeado travado
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    const lockStatus = localStorage.getItem('sidebarLocked');
+    
+    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
+    if (lockStatus === 'true') {
+        sidebar.classList.add('locked');
+        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+    } else {
+        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+    }
+});
+</script>
+</body>
+</html>

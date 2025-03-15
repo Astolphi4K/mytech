@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/integracao.css') }}">
+    <!-- Opcional: Adicione ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="static/images/ico.ico">
+        
+</head>
+<body>
+    <!-- Menu Lateral -->
+    <nav class="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="MyTech Logo" class="logo-img">
+        </div>
+
+        <ul class="menu-items">
+            <li><a href="/menu"><i class="fa fa-desktop"></i><span>Painel</span></a></li>
+            <li><a href="/cadastro"><i class="fas fa-user-plus"></i><span>Cadastro</span></a></li>
+            <li><a href="/retornos"><i class="fa-solid fa-clock-rotate-left"></i><span>Retornos</span></a></li>
+            <li><a href="/integracao"><i class="fa-solid fa-code"></i><span>Integração</span></a></li>
+            <button class="lock-btn" id="toggleLock">🔒</button>
+        </ul>
+        
+    </nav>
+
+    <header class="header">
+        <div class="profile" onclick="toggleMenu()">
+            <span class="profile-name"></span>
+            <img src="https://cdn-icons-png.flaticon.com/512/6326/6326055.png" alt="Foto do usuário" class="profile-img">
+            <div class="profile-menu" id="profileMenu">
+                <a href="#"><i class="fas fa-cog"></i> Configuração</a>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Header -->
+        
+
+        <!-- Conteúdo -->
+        <div class="content">
+            <h1>Integrações:</h1>
+            <p>Integrações de sistemas e soluções:</p>
+            <br> </br>
+            <div class="panel-body">
+               
+                <div class="application-content">
+                    <div class="logo">
+                        <img src="/static/images/correios.png" alt="correios" class="correios">
+                        
+                    </div>
+                    <div class="descricao">
+                        <h3>Integração Correios</h3>
+                        <p>Configure seus dados de autenticação dos Correios para que possamos identificar as entregas efetuadas pelo transportador e gerar etiqueta de logística</p>
+                    </div>
+                    <div class="buttons">
+                        <button class = "estado"> 
+                        </button>
+                        <br>
+                        <button class = "configurar" onclick="openModal()">
+                            Configurar
+                        </button>
+                    </div>
+                </div>
+            </div>        
+        </div>
+
+        
+          
+    </main>
+
+    <dialog class="modal" id="configModal">
+        <h3>Integração com Correios</h3>
+        
+        <div class="tab-container">
+            <button class="tab active" onclick="showTab('autenticacao')">Autenticação</button>
+            <button class="tab" onclick="showTab('remetentes')">Remetentes</button>
+            <button class="tab" onclick="showTab('servicos')">Serviços</button>
+        </div>
+        
+        <div class="content1 active" id="autenticacao">
+            <label>Integração com Correios</label>
+            <div class="switch-container">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+
+            </div>
+            <label for="cartao">Cartão de Postagem:</label>
+            <input type="text" id="cartao" name="cartao">
+            <label for="usuario">Usuário do portal Meu Correios:</label>
+            <input type="text" id="usuario" name="usuario">
+            <label for="senha">Senha de acesso às APIs:</label>
+            <input type="password" id="senha" name="senha">
+        </div>
+        
+        <div class="content1" id="remetentes">
+            <label for="logradouro">Logradouro:</label>
+            <input type="text" id="logradouro" name="logradouro">
+            <label for="cep">CEP:</label>
+            <input type="text" id="cep" name="cep">
+            <label for="uf">UF:</label>
+            <input type="text" id="uf" name="uf">
+        </div>
+        
+        <div class="content1" id="servicos">
+            <label for="servico">Selecione o Serviço:</label>
+            <select id="servico" name="servico">
+                <option value="sedex">SEDEX</option>
+                <option value="pac">PAC</option>
+                <option value="e-sedex">e-Sedex</option>
+            </select>
+        </div>
+        
+        <div class="button-container">
+            <button class="button close" onclick="closeModal()">Fechar</button>
+            <button class="button save">Salvar</button>
+        </div>
+    </dialog>
+    
+
+</body>
+<script>
+    async function verificarSessao() {
+            try {
+            const resposta = await fetch("/verificar_login", {
+                method: "GET",
+                credentials: "include", // Envia os cookies automaticamente
+            });
+
+            const dados = await resposta.json();
+            const profileNameElement = document.querySelector(".profile-name");
+            if (profileNameElement) {
+                profileNameElement.textContent = dados.user; // Substitui "Admin" pelo nome do usuário
+            }
+            
+            if (dados.logged_in) {
+                if (window.location.pathname !== "/integracao") {
+                    window.location.href = "/integracao"; // Redireciona apenas se necessário
+                }
+            } else {
+                if (window.location.pathname !== "/") {
+                    window.location.href = "/"; // Redireciona apenas se necessário
+                }
+            }
+        } catch (erro) {
+            console.error("Erro ao verificar sessão:", erro);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", verificarSessao);
+    document.querySelector(".estado").textContent = "Ativar"
+
+    
+
+
+
+function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content1').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+function openModal() {
+    document.getElementById('configModal').style.display = 'block';
+}
+
+function closeModal() {
+            document.getElementById('configModal').style.display = 'none';
+        }
+
+
+document.querySelector('.lock-btn').addEventListener('click', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    sidebar.classList.toggle('locked');
+    
+    // Salvar o estado da sidebar no localStorage
+    if (sidebar.classList.contains('locked')) {
+        localStorage.setItem('sidebarLocked', 'true');
+        lockBtn.textContent = '🔓'; // Muda para o ícone de cadeado destravado
+    } else {
+        localStorage.setItem('sidebarLocked', 'false');
+        lockBtn.textContent = '🔒'; // Muda para o ícone de cadeado travado
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    const lockStatus = localStorage.getItem('sidebarLocked');
+    
+    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
+    if (lockStatus === 'true') {
+        sidebar.classList.add('locked');
+        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+    } else {
+        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+    }
+});
+
+    </script>
+</html>

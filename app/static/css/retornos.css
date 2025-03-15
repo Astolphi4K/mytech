@@ -1,0 +1,647 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(0deg, rgba(179,179,179,1) 0%, rgba(203,203,203,0.969625350140056) 35%, rgba(238,238,238,1) 100%);
+}
+
+.sidebar {
+    width: 60px; /* Largura inicial da sidebar */
+    background: #2c3e50;
+    color: white;
+    padding: 10px;
+    position: fixed;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transition: width 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Expande ao passar o mouse, exceto se estiver travada */
+.sidebar:hover:not(.locked) {
+    width: 150px;
+}
+
+/* Quando travada, fixa a largura */
+.sidebar.locked {
+    width: 150px !important;
+}
+
+.logo-img {
+    width: 50px;
+    transition: width 0.4s ease;
+    margin-left: -5px;
+}
+
+/* Mantém o logo grande quando travada */
+.sidebar:hover:not(.locked) .logo-img,
+.sidebar.locked .logo-img {
+    width: 120px;
+}
+
+.menu-items {
+    list-style: none;
+    padding: 0;
+    margin-top: 30px;
+}
+
+.menu-items li {
+    margin: 3px 0;
+}
+
+.menu-items a {
+    color: #bdc3c7;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+    border-radius: 5px;
+    transition: 0.3s;
+    text-align: left;
+}
+
+.menu-items a:hover {
+    background: #34495e;
+    color: white;
+    padding-left: 15px;
+}
+
+.menu-items a span {
+    display: none;
+}
+
+.sidebar:hover:not(.locked) .menu-items a span,
+.sidebar.locked .menu-items a span {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+/* Botão de travamento */
+.lock-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: white;
+    position: absolute;
+    bottom: 20px;  /* Fixa no rodapé da sidebar */
+    left: 50%; /* Centraliza horizontalmente */
+    transform: translateX(-50%); /* Ajusta para o centro */
+    transition: transform 0.3s;
+}
+
+.lock-btn:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Conteúdo Principal */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 150px; /* Mesma largura da sidebar */
+    margin-top: 30px; /* Mesma altura do header */
+    padding: 1px;
+    min-height: calc(100vh - 60px); /* Ajuste de altura total */
+    flex-grow: 1; /* Garante que o conteúdo ocupe o restante do espaço disponível */
+}
+
+/* Header */
+.header {
+    background: white;
+    padding: 3px 60px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    left: 60px; /* Mesma largura da sidebar */
+    right: 0;
+    top: 0;
+    z-index: 999;
+    height: 50px; /* Altura consistente */
+}
+
+
+.profile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.profile-name {
+    margin-right: 10px;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: none;
+    min-width: 150px;
+}
+
+.profile-menu.active {
+    display: block;
+}
+
+.profile-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #2c3e50;
+    transition: 0.3s;
+}
+
+.profile-menu a:hover {
+    background: #f8f9fa;
+}
+
+/* Conteúdo */
+.filter {
+    padding: 1px;
+    max-width: 1820px;
+    margin-top: 23px;
+    margin-bottom: 10px;
+}
+
+/* Estilo para o dashboard-grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Ajuste o minmax para controlar a largura */
+    gap: 20px;
+    max-width: 1800px;
+    background-color: #ffffff;
+    padding: 5px;
+    border-radius: 10px;
+
+}
+
+/* Estilo para os cards */
+.dashboard-card {
+    background: white;
+    border-radius: 10px;
+    padding: 5px; /* Reduzi o padding para diminuir a altura */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    height: auto; /* Altura automática */
+    min-height: 7px; /* Altura mínima para manter consistência */
+    
+}
+
+/* Estilo para o card-header */
+.card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Reduzi o espaçamento entre label e input/select */
+}
+
+/* Estilo para as labels */
+.card-header label {
+    font-weight: 50;
+    color: #4a5568;
+    margin-bottom: 1px; /* Reduzi o espaçamento abaixo da label */
+}
+
+/* Estilo para inputs e selects */
+.card-header input,
+.card-header select {
+    width: 100%;
+    padding: 2px 8px; /* Reduzi o padding (vertical e horizontal) */
+    border: 2px solid #e2e8f0;
+    border-radius: 6px; /* Bordas um pouco menos arredondadas */
+    font-size: 13px; /* Reduzi o tamanho da fonte */
+    transition: border-color 0.3s ease;
+    height: 30px; /* Altura fixa para inputs e selects */
+}
+
+.btn {
+    background-color: #2980b9;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+
+.card-header input:focus,
+.card-header select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+}
+
+.dashboard-container {
+    display: grid;
+    margin-top: 5px; /* Espaço acima do container */
+    padding: 10px;
+    background-color: #fff; /* Cor de fundo */
+    border: 1px solid #ddd; /* Borda para visualização */
+    border-radius: 8px; /* Bordas arredondadas */
+}
+
+.order-table {
+   
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.order-table th, .order-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+/* Ajuste da cor do cabeçalho */
+.order-table th {
+    background-color: #2c3e50; /* Cor de fundo do cabeçalho */
+    color: white; /* Cor do texto no cabeçalho */
+    text-align: center; /* Centraliza o texto */
+    font-weight: bold; /* Deixa o texto em negrito */
+    
+}
+
+/* Centralizar os checkboxes dentro das células */
+.order-table td input[type="checkbox"] {
+    margin: 0 auto; /* Centraliza o checkbox na célula */
+    display: block; /* Faz o checkbox ser tratado como um bloco */
+}
+
+.order-table td {
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ddd;
+    
+}
+
+.order-table tr:nth-child(odd) {
+    background-color: #ffffff; /* Cor de fundo para linhas ímpares (branco claro) */
+}
+
+.order-table tr:nth-child(even) {
+    background-color: #f7f7f7; /* Cor de fundo para linhas pares (cinza claro) */
+}
+
+.order-table td button {
+    background-color: transparent;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.body-table tbody td {
+    font-family: 'Roboto', sans-serif;  
+    font-size: 14px;                    
+    line-height: 1.6;                  
+    color: #949292;                       
+}
+.order-table td button i {
+    margin-right: 5px;
+}
+
+.select-all {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.select-all input {
+    margin-right: 10px;
+}
+
+.btn-edit:hover {
+    color: #2980b9;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    margin: 0;
+    transform: scale(1.2);
+}
+
+
+.order-table th:nth-child(1),
+.order-table td:nth-child(1) {
+    width: 10px; 
+    
+}
+.order-table th:nth-child(2),
+.order-table td:nth-child(2) {
+    width: 50px; 
+}
+
+.order-table th:nth-child(3),
+.order-table td:nth-child(3) {
+    width: 20px;
+    
+}
+
+.order-table th:nth-child(4),
+.order-table td:nth-child(4) {
+    width: 350px; 
+}
+
+.order-table th:nth-child(5),
+.order-table td:nth-child(5) {
+    width: 40px; 
+}
+
+.order-table th:nth-child(6),
+.order-table td:nth-child(6) {
+    width: 50px; 
+}
+
+.order-table th:nth-child(7),
+.order-table td:nth-child(7) {
+    width: 10%; 
+}
+
+.order-table th:nth-child(8),
+.order-table td:nth-child(8) {
+    width: 8%; 
+}
+
+
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%; /* Ajuste conforme necessário */
+    max-width: 650px;
+    border: none;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}    
+.modal-content {
+    width: 600px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.modal::backdrop {
+    background: rgba(0, 0, 0, 0.7); /* Ajuste a opacidade conforme necessário */
+}
+.tabs {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background: #ddd;
+}
+
+.tab-button.active {
+    background: #007bff;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.form-grid {
+    display: flex;
+    gap: 20px;
+}
+
+.form-grid div {
+    flex: 1;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-top: 3px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+select{
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+}
+
+.header_situacao {
+    background-color: #2980b9;
+    color: #fff;
+    border: none;
+    padding: 0; /* Remova padding extra */
+    font-size: 16px;
+    border-radius: 5px;
+    width: 138px;
+    display: inline-flex; /* Garante que o tamanho se ajuste ao conteúdo */
+    max-width: none; /* Remove restrição de largura */
+}
+
+.alterar_situacao {
+    background-color: #007bff;
+    color: white !important;
+    border: none;
+    padding: 4px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaço entre o ícone e o texto */
+}
+
+td.situacao_coluna, th.situacao_coluna {
+    text-align: left;
+}
+
+.alterar_situacao i {
+    font-size: 16px; /* Ajuste o tamanho do ícone */
+}
+
+
+.header_status {
+    color: #fff;
+    border: none;
+    padding: 2px 10px; /* Ajuste o padding para um preenchimento confortável */
+    font-size: 16px;
+    border-radius: 5px;
+    display: inline-block; /* Permite que a largura da caixa seja ajustada pelo conteúdo */
+    white-space: nowrap; /* Impede a quebra de linha no texto */
+
+}
+
+.editped {
+    color: #fff;
+
+}
+
+.editped {
+    display: none; /* Inicialmente oculto */
+    position: fixed; /* Fixa a posição da div na tela */
+    top: 50%; /* Posiciona verticalmente no centro */
+    left: 50%; /* Posiciona horizontalmente no centro */
+    transform: translate(-50%, -50%); /* Centraliza exatamente */
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Garante que a div fique acima de outros elementos */
+    width: 80%; /* Ajuste o tamanho conforme necessário */
+    max-width: 400px; /* Limita o tamanho máximo */
+}
+
+
+.btnedit {
+    text-align: center;
+}
+
+
+/* Estilos do Modal */
+/* Estilos do Modal */
+.modalacao {
+    display: none; /* Inicialmente o modal está oculto */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 650px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1040; /* Garante que o modal fique acima do fundo */
+    max-height: 80%;
+    overflow-y: auto;
+    border: none; /* Remove a borda */
+    box-shadow: none; /* Remove a sombra da borda */
+}
+
+
+.modalacao[open] {
+    display: block; /* Exibe o modal quando o atributo open está presente */
+}
+
+
+.modalacao[open] + body.modal-open {
+    background-color: rgba(0, 0, 0, 0.5); /* Escurece o fundo da página quando o modal está aberto */
+}
+
+.modal-content {
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #358e9e;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+button:hover {
+    background-color: #358e9e;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.params {
+    display: flex;
+    gap: 20px; /* Espaço entre os botões */
+    justify-content: flex-end; /* Alinha os botões à esquerda */
+}
+
+.printer, .edit {
+    background-color: #2980b9; /* Cor de fundo dos botões */
+    border: none;
+    color: white;
+    width: 100px; /* Largura menor */
+    font-size: 16px; /* Tamanho da fonte ajustado */
+    border-radius: 8px; /* Bordas arredondadas */
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.printer i, .edit i {
+    font-size: 15px; /* Tamanho do ícone ajustado */
+    margin-right: 8px; /* Menor espaço entre ícone e texto */
+}
+
+

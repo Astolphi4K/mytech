@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impressão de Etiquetas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            max-width: 600px;
+            border-collapse: collapse;
+            margin: auto;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .qrcode-cell {
+            width: 150px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .qrcode-container img {
+            display: block;
+            margin: auto;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="etiquetas-container">
+        <!-- As tabelas serão geradas aqui -->
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            try {
+                let etiquetaData = JSON.parse('{{ data | safe }}');
+
+                const container = document.querySelector("#etiquetas-container");
+
+                if (!etiquetaData || etiquetaData.length === 0) {
+                    container.innerHTML = "<p style='text-align: center;'>Nenhuma etiqueta encontrada</p>";
+                    return;
+                }
+
+                etiquetaData.forEach((item, index) => {
+                    const table = document.createElement("table");
+
+                    table.innerHTML = `
+                        <tbody>
+                            <tr>
+                                <td rowspan="4" class="qrcode-cell">
+                                    <canvas id="qrcode-${index}"></canvas>
+                                </td>
+                                <th>DATA</th>
+                                <th>ID</th>
+                                <th>POSTAGEM</th>
+                            </tr>
+                            <tr>
+                                <td>${item.data_cadastro || "N/A"}</td>
+                                <td>${item.id}</td>
+                                <td>${item.postagem || "N/A"}</td>
+                            </tr>
+                            <tr>
+                                <th colspan="3">NOME</th>
+                            </tr>
+                            <tr>
+                                <td colspan="3">${item.nome_completo}</td>
+                            </tr>
+                            <tr>
+                                <th>TIPO</th>
+                                <td colspan="3">${item.tipo_devolucao || "N/A"}</td>
+                            </tr>
+                        </tbody>
+                    `;
+
+                    container.appendChild(table);
+
+                    new QRious({
+                        element: document.getElementById("qrcode-" + index),
+                        value: JSON.stringify("http://127.0.0.1:5000/order/" + item.id),
+                        size: 80
+                    });
+                });
+            } catch (error) {
+                console.error("❌ Erro ao processar os dados JSON:", error);
+            }
+            window.print();
+        });
+    </script>
+
+</body>
+</html>

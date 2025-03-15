@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro.css') }}">
+    <!-- Opcional: Adicione ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="static/images/ico.ico">
+        
+</head>
+<body>
+    <!-- Menu Lateral -->
+    <nav class="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="MyTech Logo" class="logo-img">
+        </div>
+        <ul class="menu-items">
+            <li><a href="/menu"><i class="fa fa-desktop"></i><span>Painel</span></a></li>
+            <li><a href="/cadastro"><i class="fas fa-user-plus"></i><span>Cadastro</span></a></li>
+            <li><a href="/retornos"><i class="fa-solid fa-clock-rotate-left"></i><span>Retornos</span></a></li>
+            <li><a href="/integracao"><i class="fa-solid fa-code"></i><span>Integração</span></a></li>
+            <button class="lock-btn" id="toggleLock">🔒</button>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="profile" onclick="toggleMenu()">
+            <span class="profile-name"></span>
+            <img src="https://cdn-icons-png.flaticon.com/512/6326/6326055.png" alt="Foto do usuário" class="profile-img">
+            <div class="profile-menu" id="profileMenu">
+                <a href="#"><i class="fas fa-cog"></i> Configuração</a>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <div class = "content">
+            <div class="form-container">
+                <h2>Formulário de Cadastro</h2>
+                <form class="myForm" id="myForm" onsubmit="submitForm(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo:</label>
+                            <input type="text" id="nome" name="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpf">CPF:</label>
+                            <input type="text" id="cpf" name="cpf" required>
+                        </div>
+                    </div>
+                
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cep">CEP:</label>
+                            <input type="text" id="cep" name="cep" onblur="buscarCEP()" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero">Numero:</label>
+                            <input type="text" id="numero" name="numero" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bairro">Bairro:</label>
+                            <input type="text" id="bairro" name="bairro" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="complemento">Complemento:</label>
+                            <input type="text" id="complemento" name="complemento">
+                        </div>
+                    </div>
+                
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="uf">UF:</label>
+                            <input type="text" id="uf" name="uf" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cidade">Cidade:</label>
+                            <input type="text" id="cidade" name="cidade" required>
+                        </div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="logradouro">Logradouro:</label>
+                        <input type="text" id="logradouro" name="logradouro">
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="tipo">Tipo de Devolução:</label>
+                        <select id="tipo" name="tipo" required>
+                            <option value="0"></option>
+                            <option value="Conserto" selected>Conserto</option>
+                            <option value="Troca">Troca</option>
+                            <option value="Orçamento">Orçamento</option>
+                        </select>
+                    </div>
+                
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="produto">Produto (SKU):</label>
+                            <input type="text" id="produto" name="produto" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantidade">Quantidade:</label>
+                            <input type="number" id="quantidade" name="quantidade" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantidade">Postagem:</label>
+                            <input type="number" id="postagem" name="postagem" required>
+                        </div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <input type="text" id="status" name="status" value="Em devolução" readonly>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="data">Data de Cadastro:</label>
+                        <input type="date" id="data" name="data" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <button type="submit">Cadastrar</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+        </div>
+    
+        <!-- Popup de Sucesso -->
+        <div class="toast">
+            <div class="toast-content">
+                <i class="fas fa-solid fa-check check"></i>
+                <div class="message">
+                    <span class="text text-1">Sucesso!</span>
+                    <span class="text text-2">Cliente cadastrado com Sucesso!</span>
+                </div>
+            </div>
+            <i class="fa-solid fa-xmark close"></i>
+            <div class="progress"></div>
+        </div>
+    </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+    <script>
+
+
+        toast = document.querySelector(".toast")
+        closeIcon = document.querySelector(".close"),
+        progress = document.querySelector(".progress");
+        let timer1, timer2;
+        // Função para alternar o menu do perfil
+        function toggleMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', function(event) {
+            const profileMenu = document.getElementById('profileMenu');
+            const profile = document.querySelector('.profile');
+
+            if (!profile.contains(event.target)) {
+                profileMenu.classList.remove('active');
+            }
+        });
+
+        // Preenche a data de cadastro automaticamente
+        document.getElementById('data').value = new Date().toISOString().split('T')[0];
+
+        function buscarCEP() {
+            const cep = document.getElementById('cep').value.replace(/\D/g, ''); // Remove caracteres não numéricos
+
+            // Verifica se o CEP tem 8 dígitos
+            if (cep.length !== 8) {
+                alert('CEP inválido!');
+                return;
+            }
+
+            // Faz a requisição à API ViaCEP
+            
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        alert("CEP não encontrado!");
+                        return;
+                    }
+                    console.log(data.logradouro)
+                    // Preenche os campos com os dados da API
+                    document.getElementById('logradouro').value = data.logradouro;
+                    document.getElementById('cidade').value = data.localidade;
+                    document.getElementById('uf').value = data.uf;
+                    document.getElementById('bairro').value = data.bairro;
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar CEP:', error);
+                    alert('Erro ao buscar CEP. Tente novamente.');
+                });
+        }
+
+        $(document).ready(function() {
+        $('#cpf').inputmask('999.999.999-99');
+        $('#cep').inputmask('99999-999');
+    });
+
+    function submitForm(event) {
+            event.preventDefault();  // Evita o envio padrão do formulário
+            document.getElementById('loader').style.display = 'flex';
+            // Obtém os dados do formulário
+            
+            const formData = new FormData(document.getElementById('myForm'));
+            const data = Object.fromEntries(formData.entries()); // Converte para objeto JSON
+            console.log(formData)
+            // Envia os dados via AJAX utilizando fetch
+            fetch('/submit_form', {
+                method: 'POST',
+                headers: {
+            "Content-Type": "application/json"
+            },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Exibe a resposta do servidor
+                document.getElementById('loader').style.display = 'none';
+                if (data.status === 'success') {
+                    toast.classList.add("active");
+                    progress.classList.add("active");
+
+                    // Definir a largura do progresso para 100% em 2 segundos
+                    progress.style.transition = "width 2s linear"; // Faz o progresso ir até 100% em 2 segundos
+                    progress.style.width = "100%"; // Vai para 100% (finaliza o progresso)
+
+                    // Remover o toast e o progresso após 2 segundos
+                    timer1 = setTimeout(() => {
+                        toast.classList.remove("active"); // Remover toast após 2 segundos
+                        progress.classList.remove("active"); // Remover progresso após o toast
+                        window.location.href = '/retornos';
+                    }, 2000); // 2 segundos para o progresso e toast desaparecerem
+
+                    // Se o usuário clicar no ícone de fechar antes do tempo
+                    closeIcon.addEventListener("click", () => {
+                        toast.classList.remove("active");s
+                        progress.classList.remove("active");
+                        clearTimeout(timer1); // Limpar o timer caso o usuário feche antes
+                    });
+                } else {
+                    alert('Erro ao enviar o formulário!');
+                }
+
+            })
+            .catch(error => console.error('Erro na requisição:', error));
+        }
+      
+        async function verificarSessao() {
+            try {
+            const resposta = await fetch("/verificar_login", {
+                method: "GET",
+                credentials: "include", // Envia os cookies automaticamente
+            });
+
+            const dados = await resposta.json();
+            const profileNameElement = document.querySelector(".profile-name");
+            if (profileNameElement) {
+                profileNameElement.textContent = dados.user; // Substitui "Admin" pelo nome do usuário
+            }
+            
+            if (dados.logged_in) {
+                if (window.location.pathname !== "/cadastro") {
+                    window.location.href = "/cadastro"; // Redireciona apenas se necessário
+                }
+            } else {
+                if (window.location.pathname !== "/") {
+                    window.location.href = "/"; // Redireciona apenas se necessário
+                }
+            }
+        } catch (erro) {
+            console.error("Erro ao verificar sessão:", erro);
+        }
+    }
+
+    // Executa apenas quando a página carregar completamente
+    document.addEventListener("DOMContentLoaded", verificarSessao);
+
+    async function logout() {
+                await fetch("/logout", {
+                    method: "POST",
+                    credentials: "include",
+                });
+
+                alert("Logout realizado!");
+                window.location.href = "/";
+            }
+
+            document.querySelector('.lock-btn').addEventListener('click', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    sidebar.classList.toggle('locked');
+    
+    // Salvar o estado da sidebar no localStorage
+    if (sidebar.classList.contains('locked')) {
+        localStorage.setItem('sidebarLocked', 'true');
+        lockBtn.textContent = '🔓'; // Muda para o ícone de cadeado destravado
+    } else {
+        localStorage.setItem('sidebarLocked', 'false');
+        lockBtn.textContent = '🔒'; // Muda para o ícone de cadeado travado
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    const lockStatus = localStorage.getItem('sidebarLocked');
+    
+    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
+    if (lockStatus === 'true') {
+        sidebar.classList.add('locked');
+        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+    } else {
+        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+    }
+});
+</script>
+</body>
+</html>

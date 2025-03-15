@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/order.css') }}">
+    <!-- Opcional: Adicione ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="static/images/ico.ico">
+        
+</head>
+<body>
+    <!-- Menu Lateral -->
+    <nav class="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="MyTech Logo" class="logo-img">
+        </div>
+        <ul class="menu-items">
+            <li><a href="/menu"><i class="fa fa-desktop"></i><span>Painel</span></a></li>
+            <li><a href="/cadastro"><i class="fas fa-user-plus"></i><span>Cadastro</span></a></li>
+            <li><a href="/retornos"><i class="fa-solid fa-clock-rotate-left"></i><span>Retornos</span></a></li>
+            <li><a href="/integracao"><i class="fa-solid fa-code"></i><span>Integração</span></a></li>
+            <button class="lock-btn" id="toggleLock">🔒</button>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="profile" onclick="toggleMenu()">
+            <span class="profile-name"></span>
+            <img src="https://cdn-icons-png.flaticon.com/512/6326/6326055.png" alt="Foto do usuário" class="profile-img">
+            <div class="profile-menu" id="profileMenu">
+                <a href="#"><i class="fas fa-cog"></i> Configuração</a>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <div class = "content">
+                <h1>Pedido #{{ order.id }}</h1>
+                <p><strong>Cliente:</strong> <span id="customer-name"></span></p>
+                <p><strong>CPF:</strong> <span id="cpf"></span></p>
+                <p><strong>Endereço:</strong> <span id="address"></span></p>
+                <p><strong>Status:</strong> <span id="status"></span></p>
+                <p><strong>Produto SKU:</strong> <span id="sku"></span></p>
+                <p><strong>Quantidade:</strong> <span id="quantity"></span></p>
+                <p><strong>Rastreamento:</strong> <span id="tracking"></span></p>
+                <p><strong>Tipo de envio:</strong> <span id="shipment-type"></span></p>
+                <p><strong>Transportadora:</strong> <span id="carrier"></span></p>
+                <p><strong>Valor:</strong> <span id="price"></span></p>
+           
+        </div>
+    </main>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    var orderId = "{{ order.id }}";  // Garanta que o Jinja2 renderiza o valor corretamente
+
+    fetch(`/api/orders/${orderId}`)
+        .then(response => response.json())
+        .then(order => {
+            console.log(order); // Verifique os dados retornados
+            document.getElementById("customer-name").textContent = order.nome_completo;
+            document.getElementById("cpf").textContent = order.cpf;
+            document.getElementById("address").textContent = `${order.logradouro}, ${order.numero}, ${order.bairro}, ${order.cidade} - ${order.uf}, CEP: ${order.cep}`;
+            document.getElementById("status").textContent = order.status;
+            document.getElementById("sku").textContent = order.produto_sku;
+            document.getElementById("quantity").textContent = order.quantidade;
+            document.getElementById("tracking").textContent = order.rastreamento || "Não disponível";
+            document.getElementById("shipment-type").textContent = order.tipo || "Não disponível";
+            document.getElementById("carrier").textContent = order.transportadora || "Não disponível";
+            document.getElementById("price").textContent = order.valor_real ? `R$ ${order.valor_real.toFixed(2)}` : "Não disponível";
+})
+        .catch(error => console.error("Erro ao carregar pedido:", error));
+});
+document.querySelector('.lock-btn').addEventListener('click', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    sidebar.classList.toggle('locked');
+    
+    // Salvar o estado da sidebar no localStorage
+    if (sidebar.classList.contains('locked')) {
+        localStorage.setItem('sidebarLocked', 'true');
+        lockBtn.textContent = '🔓'; // Muda para o ícone de cadeado destravado
+    } else {
+        localStorage.setItem('sidebarLocked', 'false');
+        lockBtn.textContent = '🔒'; // Muda para o ícone de cadeado travado
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector('.sidebar');
+    const lockBtn = document.querySelector('.lock-btn');
+    const lockStatus = localStorage.getItem('sidebarLocked');
+    
+    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
+    if (lockStatus === 'true') {
+        sidebar.classList.add('locked');
+        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+    } else {
+        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+    }
+});
+</script>
+</body>
+</html>

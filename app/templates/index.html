@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Opcional: Adicione ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="static/images/ico.ico">
+    
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Bem-vindo</h1>
+            <p>Faça login para continuar</p>
+        </div>
+
+        <form id = "myform" class="myform" onsubmit="submitForm(event)">
+            <div class="input-group">
+                <input type="email" name="email" required>
+                <label>Email</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="password" required>
+                <label>Senha</label>
+            </div>
+
+            <div class="remember-forgot">
+                <label>
+                    <input type="checkbox"> Lembrar-me
+                </label>
+                <a href="#">Esqueceu a senha?</a>
+            </div>
+
+            <button type="submit" class="login-button">Entrar</button>
+        </form>
+
+      
+    </div>
+
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();  // Evita o envio padrão do formulário
+            
+            const formData = new FormData(document.getElementById('myform'));
+            
+            // Envia os dados via AJAX utilizando fetch
+            fetch('/submit_login', {
+                method: 'POST',
+                body: formData,
+                credentials: "include"
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.status)
+                if (data.status === 'success') {
+                    
+                    setTimeout(() => {
+                    window.location.href = '/retornos';
+                    }, 1000);
+
+                } else {
+                    alert('Erro ao enviar o formulário!');
+                }
+
+                
+
+            })
+            .catch(error => console.error('Erro na requisição:', error));
+        }
+      
+        async function verificarSessao() {
+        try {
+        const resposta = await fetch("/verificar_login", {
+            method: "GET",
+            credentials: "include", // Envia os cookies automaticamente
+        });
+
+        const dados = await resposta.json();
+
+        if (dados.logged_in) {
+            if (window.location.pathname !== "/menu") {
+                window.location.href = "/menu"; // Redireciona apenas se necessário
+            }
+        } else {
+            if (window.location.pathname !== "/") {
+                window.location.href = "/"; // Redireciona apenas se necessário
+            }
+        }
+    } catch (erro) {
+        console.error("Erro ao verificar sessão:", erro);
+    }
+}
+
+// Executa apenas quando a página carregar completamente
+document.addEventListener("DOMContentLoaded", verificarSessao);
+
+
+    </script>
+</body>
+</html>
