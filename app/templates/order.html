@@ -40,18 +40,103 @@
     <!-- Conteúdo Principal -->
     <main class="main-content">
         <div class = "content">
-                <h1>Pedido #{{ order.id }}</h1>
-                <p><strong>Cliente:</strong> <span id="customer-name"></span></p>
-                <p><strong>CPF:</strong> <span id="cpf"></span></p>
-                <p><strong>Endereço:</strong> <span id="address"></span></p>
-                <p><strong>Status:</strong> <span id="status"></span></p>
-                <p><strong>Produto SKU:</strong> <span id="sku"></span></p>
-                <p><strong>Quantidade:</strong> <span id="quantity"></span></p>
-                <p><strong>Rastreamento:</strong> <span id="tracking"></span></p>
-                <p><strong>Tipo de envio:</strong> <span id="shipment-type"></span></p>
-                <p><strong>Transportadora:</strong> <span id="carrier"></span></p>
-                <p><strong>Valor:</strong> <span id="price"></span></p>
-           
+    
+            <!-- Informações do Pedido -->
+            <div class="order-info">
+                <div class="card">
+                    <h3>Informações do retorno</h3>
+                    <p><strong>ID de Devolução:</strong> <span id="id-retorno"></span></p>
+                    <p><strong>Tipo de Retorno:</strong> <span id="tipo-retorno"></span></p>
+                    <p><strong>Data de cadastro:</strong> <span id="data-cadastro"></span></p>
+                    <p><strong>Data de Recebimento:</strong> <span id="data-recebimento"></span></p>
+                    <p><strong>Número de Postagem:</strong> <span id="postagem"></span></p>
+                
+                </div>
+        
+                <div class="card">
+                    <h3>Cliente</h3>
+                    <p><strong>Nome:</strong> <span id="customer-name"></span></p>
+                    <p><strong>CPF:</strong> <span id="cpf"></span></p>
+                    <p><strong>Email:</strong> <span id="email"></span></p>
+                    <p><strong>Endereço:</strong> <span id="address"></span></p>
+                    <p><strong>CEP:</strong> <span id="cep"></span></p>
+                    <p><strong>Cidade:</strong> <span id="uf"></span></p>
+                </div>
+            </div>
+        
+            <!-- Produtos -->
+            <div class="product-info card">
+                <h3>Produto</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Produto</th>
+                            <th>SKU</th>
+                            <th>Quantidade</th>
+                            <th>Valor (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="image" style="text-align: center;">
+                                <img src="" alt="Imagem do pedido" height="65px" width="85px" style="text-align: center;">
+                            </td>
+                            <td id="product-name"></td>
+                            <td id="sku"></td>
+                            <td id="quantity"></td>
+                            <td id="unit-price"></td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>NCM</th>
+                            <th>Peso (Kg)</th>
+                            <th>Altura (cm)</th>
+                            <th>Largura (cm)</th>
+                            <th>Comprimento (cm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="ncm"></td>
+                            <td id="peso"></td>
+                            <td id="altura"></td>
+                            <td id="largura"></td>
+                            <td id="comprimento"></td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="more_info">
+
+                <div class="card2">
+                    <h3>Detalhes de Conserto</h3>
+            
+                        <p><strong>Observação:</strong> <span id="observacao"></span></p>
+                        <p><strong>Data de Conserto:</strong> <span id="data_recebimento2"></span></p>
+                        <p><strong>Detalhes:</strong> <span id="detalhes"></span></p>
+                </div>
+
+                <div class="card2">
+                    <h3>Logística</h3>
+            
+                        <p><strong>Transportador:</strong> <span id="transportador"></span></p>
+                        <p><strong>Tipo:</strong> <span id="tipo-envio"></span></p>
+                        <p><strong>Rastreamento:</strong> <span id="rastreamento"></span></p>
+                        <p><strong>Valor(R$):</strong> <span id="valor"></span></p>
+                </div>
+                
+            </div>
+            <div class="status-bar">
+                <span class="status">Em Devolução</span>
+                <span class="status">Recebido CD</span>
+                <span class="status">Manutenção</span>
+                <span class="status">Expedição</span>
+                <span class="status">Enviado</span>
+                <span class="status">Entregue</span>
+            </div>
         </div>
     </main>
 
@@ -64,17 +149,54 @@
         .then(response => response.json())
         .then(order => {
             console.log(order); // Verifique os dados retornados
+        
+            document.getElementById("id-retorno").textContent = order.id;    
+            document.getElementById("tipo-retorno").textContent = order.tipo_devolucao;
+            document.getElementById("data-cadastro").textContent = order.data_cadastro;
+            document.getElementById("data-recebimento").textContent = order.data_recebimento || "Não disponpivel";
+            document.getElementById("postagem").textContent = order.postagem || "Não disponpivel";
+
             document.getElementById("customer-name").textContent = order.nome_completo;
             document.getElementById("cpf").textContent = order.cpf;
-            document.getElementById("address").textContent = `${order.logradouro}, ${order.numero}, ${order.bairro}, ${order.cidade} - ${order.uf}, CEP: ${order.cep}`;
-            document.getElementById("status").textContent = order.status;
+            document.getElementById("address").textContent = `${order.logradouro}, ${order.numero} ,${order.complemento}, ${order.bairro}`;
+            document.getElementById("uf").textContent = `${order.cidade}, ${order.uf}`
+            document.getElementById("cep").textContent = order.cep;
+            
+            document.getElementById("product-name").textContent = order.nome_item;
             document.getElementById("sku").textContent = order.produto_sku;
             document.getElementById("quantity").textContent = order.quantidade;
-            document.getElementById("tracking").textContent = order.rastreamento || "Não disponível";
-            document.getElementById("shipment-type").textContent = order.tipo || "Não disponível";
-            document.getElementById("carrier").textContent = order.transportadora || "Não disponível";
-            document.getElementById("price").textContent = order.valor_real ? `R$ ${order.valor_real.toFixed(2)}` : "Não disponível";
-})
+            document.getElementById("unit-price").textContent = order.preco_sugestao;
+            document.getElementById("image").querySelector("img").src = order.url_image;
+            document.getElementById("peso").textContent = order.peso || "Não disponível";
+            document.getElementById("altura").textContent = order.altura || "Não disponível";
+            document.getElementById("largura").textContent = order.largura || "Não disponível"; 
+            document.getElementById("comprimento").textContent = order.comprimento || "Não disponível"; 
+            document.getElementById("ncm").textContent = order.ncm || "Não disponível"; 
+
+            document.getElementById("observacao").textContent = order.observacao || "Nenhuma Observação";
+            document.getElementById("data_recebimento2").textContent = order.data_recebimento2 || "Não disponível";
+            document.getElementById("detalhes").textContent = order.detalhes_manutencao || "Não disponível";
+
+           
+            document.getElementById("rastreamento").textContent = order.rastreamento || "Não disponível";
+            document.getElementById("tipo-envio").textContent = order.tipo || "Não disponível";
+            document.getElementById("transportador").textContent = order.transportadora || "Não disponível";
+            document.getElementById("valor").textContent = order.valor_real || "Não disponível";
+
+            let statusElements = document.querySelectorAll(".status-bar .status");
+
+            statusElements.forEach(span => {
+        // Remove a classe 'highlight' de todos os elementos
+            span.classList.remove("highlight");
+
+            // Se o texto do span for igual ao status do pedido, adiciona a classe
+            if (span.textContent.trim() === order.status) {
+                span.classList.add("highlight");
+            }
+        });
+
+
+})          
         .catch(error => console.error("Erro ao carregar pedido:", error));
 });
 document.querySelector('.lock-btn').addEventListener('click', () => {
@@ -105,6 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lockBtn.textContent = '🔒'; // Ícone de cadeado travado
     }
 });
+
 </script>
 </body>
 </html>

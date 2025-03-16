@@ -43,21 +43,62 @@ class Database:
         return resultado is not None  # Retorna True se o login for válido
 
     def inserir_cadastro(self, dados):
-        conn = self.conectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO cadastro (
-                nome_completo, cpf, cep, numero, bairro, complemento, uf, cidade, logradouro, 
-                tipo_devolucao, produto_sku, quantidade, status, data_cadastro, postagem
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            dados["nome"], dados["cpf"], dados["cep"], dados["numero"], dados["bairro"], 
-            dados.get("complemento", ""), dados["uf"], dados["cidade"], dados.get("logradouro", ""),
-            dados["tipo"], dados["produto"], dados["quantidade"], dados["status"], dados["data"], dados['postagem']
-        ))
+        try:
+            conn = self.conectar()
+            cursor = conn.cursor()
 
-        conn.commit()
-        conn.close()
+            # Verificando dados
+            print("Verificando dados:")
+            print("Form Data:", dados["formData"])
+            print("Tabela Data:", dados["tabelaData"])
+
+            # Verificando se 'tabelaData' não está vazio
+            if not dados["tabelaData"]:
+                print("Erro: 'tabelaData' está vazio ou não existe!")
+                return  # Retorna se não houver dados para a tabela
+
+            # Pegando o primeiro item da tabela
+            tabela_item = dados["tabelaData"][0]
+
+            # Verificando se todas as chaves necessárias estão presentes
+            for chave in ["altura_unidade", "largura_unidade", "ncm", "nome_item", "peso_unidade", "precosugestao", "url_image"]:
+                if chave not in tabela_item:
+                    print(f"Erro: Falta chave {chave} em 'tabelaData'.")
+                    return  # Retorna se alguma chave da tabela estiver ausente
+
+            # Convertendo os dados para os tipos corretos (se necessário)
+            altura_unidade = float(tabela_item["altura_unidade"])  # Convertendo para float
+            comprimento_unidade = float(tabela_item["comprimento_unidade"])  # Convertendo para float
+            largura_unidade = float(tabela_item["largura_unidade"])  # Convertendo para float
+            peso_unidade = float(tabela_item["peso_unidade"])  # Convertendo para float
+            precosugestao = float(tabela_item["precosugestao"])  # Convertendo para float
+            ncm = tabela_item["ncm"]  # NCM é provavelmente uma string
+            url_image = tabela_item["url_image"]  # A URL da imagem permanece como string
+
+            # Inserindo os dados no banco
+            cursor.execute("""
+                INSERT INTO cadastro (
+                    nome_completo, cpf, cep, numero, bairro, complemento, uf, cidade, logradouro, 
+                    tipo_devolucao, produto_sku, quantidade, status, data_cadastro, postagem,
+                    altura, largura,comprimento, ncm, nome_item, peso, preco_sugestao, url_image
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                dados["formData"]["nome"], dados["formData"]["cpf"], dados["formData"]["cep"], dados["formData"]["numero"], dados["formData"]["bairro"], 
+                dados["formData"]["complemento"], dados["formData"]["uf"], dados["formData"]["cidade"], dados["formData"]["logradouro"],
+                dados["formData"]["tipo"], dados["formData"]["produto"], dados["formData"]["quantidade"], dados["formData"]["status"], dados["formData"]["data"], dados["formData"]['postagem'],
+                altura_unidade, largura_unidade,comprimento_unidade, ncm, tabela_item["nome_item"], peso_unidade,
+                precosugestao, url_image
+            ))
+
+            # Commitando a transação
+            conn.commit()
+            print("Dados inseridos com sucesso!")
+            
+        except Exception as e:
+            print("Erro ao inserir os dados:", str(e))
+        
+        finally:
+            conn.close()
 
     def listar_tabela(self):
         conn = self.conectar()
@@ -165,13 +206,12 @@ class Database:
         
         return json_result
     
-    def div(self):
+    def delete(self):
 
         conn = sqlite3.connect("aplicativo.db")
         cursor = conn.cursor()
-
-        cursor.execute("""DELETE FROM cadastro;
-                          VACUUM;""")
+        cursor.execute("DELETE FROM cadastro")
+        cursor.execute("""UPDATE sqlite_sequence SET seq = 0 WHERE name = 'cadastro'""")
         conn.commit()
         resultados = cursor.fetchall()  # Retorna uma lista de tuplas [('Entregue',), ('Manutenção',), ...]
 
@@ -231,4 +271,9 @@ class Database:
         
         return pedidos_json  # Retorna lista vazia [] caso não haja registros
 
-    
+    def inserir_coluna(self):
+        conn = sqlite3.connect("aplicativo.db")
+        cursor = conn.cursor()
+        cursor.execute("ALTER TABLE cadastro ADD COLUMN comprimento REAL;")
+        conn.commit()
+        resultados = cursor.fetchall()  

@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask import render_template, request,jsonify, make_response
 import json
 from models import Database
+import requests
 
 main_routes = Blueprint('main', __name__)
 
@@ -150,3 +151,23 @@ def order_api(order_id):
         return jsonify({"error": "Pedido não encontrado"}), 404
 
     return jsonify(pedidos[0])  # Retorna JSON puro na API
+
+@main_routes.route("/api/produto/<int:sku>", methods=["POST"])
+def buscar_produto(sku):
+    url = "https://candide-netsuite.vercel.app/api/getThatItemUrl"
+    payloads = {"id":sku}
+    headers = {"Content-Type": "application/json"}
+    try:
+        # Envia a requisição POST para a API externa
+        res = requests.post(url, json=payloads, headers=headers)
+
+        # Se a resposta não for bem-sucedida, retorna erro
+        if res.status_code != 200:
+            return jsonify({"status": "fail", "error": "Falha na chamada da API"}), 500
+        
+        # Retorna os dados recebidos da API externa
+        return jsonify(res.json()), 200
+    
+    except requests.RequestException as e:
+        # Caso haja algum erro na requisição externa
+        return jsonify({"status": "fail", "error": f"Erro ao acessar a API externa: {str(e)}"}), 500
