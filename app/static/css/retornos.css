@@ -507,7 +507,7 @@ button {
     font-weight: bold;
     display: flex;
     align-items: center;
-    gap: 8px; /* Espaço entre o ícone e o texto */
+    gap: 6px; /* Espaço entre o ícone e o texto */
 }
 
 td.situacao_coluna, th.situacao_coluna {
@@ -515,7 +515,7 @@ td.situacao_coluna, th.situacao_coluna {
 }
 
 .alterar_situacao i {
-    font-size: 16px; /* Ajuste o tamanho do ícone */
+    font-size: 14px; /* Ajuste o tamanho do ícone */
 }
 
 
@@ -620,7 +620,7 @@ button:disabled {
 
 .params {
     display: flex;
-    gap: 20px; /* Espaço entre os botões */
+    gap: 8px; /* Espaço entre os botões */
     justify-content: flex-end; /* Alinha os botões à esquerda */
 }
 
@@ -639,7 +639,38 @@ button:disabled {
     transition: background-color 0.3s ease;
 }
 
-.printer i, .edit i {
+.logistica {
+    background-color: #2980b9; /* Cor de fundo dos botões */
+    border: none;
+    color: white;
+    width: 160px; /* Largura menor */
+    font-size: 16px; /* Tamanho da fonte ajustado */
+    border-radius: 8px; /* Bordas arredondadas */
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.dev {
+    background-color: #2980b9; /* Cor de fundo dos botões */
+    border: none;
+    color: white;
+    width: 160px; /* Largura menor */
+    font-size: 16px; /* Tamanho da fonte ajustado */
+    border-radius: 8px; /* Bordas arredondadas */
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+
+.printer i, .edit i , .logistica i, .dev i{
     font-size: 15px; /* Tamanho do ícone ajustado */
     margin-right: 8px; /* Menor espaço entre ícone e texto */
 }

@@ -54,8 +54,12 @@
                             <input type="text" id="cpf" name="cpf" required>
                         </div>
                         <div class="form-group">
-                            <label for="quantidade">Postagem:</label>
-                            <input type="number" id="postagem" name="postagem" required>
+                            <label for="quantidade">Ticket:</label>
+                            <input type="text" id="ticket" name="ticket" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantidade">Email:</label>
+                            <input type="text" id="email" name="email" required>
                         </div>
                     </div>
                 
@@ -107,7 +111,7 @@
                 
                     <div class="form-group">
                         <label for="status">Status:</label>
-                        <input type="text" id="status" name="status" value="Em devolução" readonly>
+                        <input type="text" id="status" name="status" value="Cadastrado" readonly>
                     </div>
                 
                     <div class="form-group">
@@ -130,7 +134,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <button type="submit">Cadastrar</button>
+                        <button type="submit" class = "cadastrar">Cadastrar</button>
                     </div>
 
                     
@@ -178,15 +182,38 @@
             </table>
         </div>
     </div>
+
+    <div id="loadingModal">
+        <div class="loading-content">
+            <div class="spinner"></div> <!-- Spinner de carregamento -->
+        </div>
+    </div>
+
+    <div class="response">
+        <div class="response-content">
+            <i id = "response-ico" class=""></i>
+            <div class="response-message">
+                <span class="response-text-1"></span>
+                <span class="response-text-2"></span>
+            </div>
+        </div>
+        <i class="fa-solid fa-xmark close"></i>
+        <div class="response-progress"></div>
+    </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
-    <script>
+<script>
 
-
-        toast = document.querySelector(".toast")
-        closeIcon = document.querySelector(".close"),
-        progress = document.querySelector(".progress");
-        let timer1, timer2;
+        let toast = document.querySelector(".toast");
+        let responseToast = document.querySelector(".response");
+        let closeIcon = document.querySelector(".close");
+        let progress = document.querySelector(".progress");
+        let responseProgress = document.querySelector(".response-progress");
+        let responseText1 = document.querySelector(".response-text-1"); // Texto 1
+        let responseText2 = document.querySelector(".response-text-2"); // Texto 2
+        let responseIcon = document.getElementById("response-ico"); // Ícone de resposta (id)
+        let timer1, timer2, timer3
         // Função para alternar o menu do perfil
         function toggleMenu() {
             const menu = document.getElementById('profileMenu');
@@ -224,7 +251,6 @@
                         alert("CEP não encontrado!");
                         return;
                     }
-                    console.log(data.logradouro)
                     // Preenche os campos com os dados da API
                     document.getElementById('logradouro').value = data.logradouro;
                     document.getElementById('cidade').value = data.localidade;
@@ -367,30 +393,101 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-    function buscar_item(){
-        const sku = document.getElementById("produto").value
+function buscar_item() {
+    showLoadingModal();  // Exibe o modal de carregamento
+    const sku = document.getElementById("produto").value;
 
-        fetch(`/api/produto/${sku}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id: sku })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.itemUrl) {
-                preencherTabela(data.itemUrl);
-            } else {
-                console.error("Dados inválidos recebidos", data);
-            }
-        })
-        .catch(error => console.error("Erro:", error));
+    fetch(`/api/produto/${sku}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: sku })
+    })
+    .then(response => {
+
+        hideLoadingModal();  // Esconde o modal de carregamento
+
+        // Seletor correto dos elementos
+        const responseToast = document.querySelector('.response');
+        const responseProgress = document.querySelector('.response-progress');
+        const message = document.querySelector('.response-message');
+
+        
+        responseProgress.classList.remove('success', 'error'); // Remove qualquer classe anterior
+        responseToast.classList.remove('success', 'error'); // Remove qualquer classe anterior
+        message.classList.remove('success', 'error');
+        // Exibir o toast de resposta e a barra de progresso
+        responseToast.classList.add("active");  // Mostra o toast
+        responseProgress.classList.add("active");  // Mostra a barra de progresso
+
+        // Definir a largura do progresso para 100% em 2 segundos
+        responseProgress.style.transition = "width 2s linear";  // Faz o progresso ir até 100% em 2 segundos
+        responseProgress.style.width = "100%";  // Vai para 100% (finaliza o progresso)
+
+        // Se a resposta for OK (status 200), atualiza o ícone e os textos
+        if (response.status === 200) {
+            responseToast.classList.add('success');
+            responseProgress.classList.add('success');
+            message.classList.add('success');
+
+            responseIcon.className = "fa-solid fa-circle-check";  // Ícone de sucesso
+
+            // Preenche os textos com as informações da resposta
+            responseText1.textContent = "Produto encontrado!";
+            responseText2.textContent = `SKU: ${sku}`;  // Exemplo de como você pode mostrar o SKU
+
+            // Remover o toast e o progresso após 2 segundos
+            const timer3 = setTimeout(() => {
+                console.log('Removendo classes');
+                responseToast.classList.remove("active");
+                responseProgress.classList.remove("active");
+            }, 2000);
+
+            // Se o usuário clicar no ícone de fechar antes do tempo
+            closeIcon.addEventListener("click", () => {
+                responseToast.classList.remove("active");
+                responseProgress.classList.remove("active");
+                clearTimeout(timer3);  // Limpar o timer caso o usuário feche antes
+            });
+
+            // Retorna a resposta JSON para processamento posterior
+            return response.json();
+        } else {
+            responseText1.textContent = "Erro ao buscar o produto.";
+            responseText2.textContent = `Tente novamente mais tarde.`;
+            responseToast.classList.add('fail');
+            responseProgress.classList.add('fail');
+            message.classList.add('fail');
+            responseIcon.className = "fa-solid fa-triangle-exclamation";  // Ícone de erro
+            
+            // Remover o toast e o progresso após 2 segundos
+            const timer3 = setTimeout(() => {
+                console.log('Removendo classes');
+                responseToast.classList.remove("active");
+                responseProgress.classList.remove("active");
+            }, 2000);
         }
+    })
+    .then(data => {
+        if (data && data.itemUrl) {
+            preencherTabela(data.itemUrl);  // Preenche a tabela com os dados
+        } else {
+            console.error("Dados inválidos recebidos", data);
+        }
+    })
+    .catch(error => {
+        console.error("Erro:", error);  // Trata qualquer erro de rede ou requisição
+        hideLoadingModal();  // Esconde o modal de carregamento em caso de erro
+    });
+}
 
-        document.getElementById("produto").addEventListener("blur", function() {
-            buscar_item()
-        });
+
+
+document.getElementById("produto").addEventListener("blur", function() {
+    buscar_item();
+});
+
 
     function preencherTabela(item) {
         const icon = document.getElementById("eye-icon");
@@ -431,10 +528,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // Adicionando o evento para buscar os dados ao sair do campo de input (blur)
-    document.getElementById("produto").addEventListener("blur", function() {
-        buscar_item();
-    });
     function openModal() {
         const modal = document.getElementById("modal");
         modal.style.display = "block";
@@ -460,29 +553,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-function coletarDadosTabela() {
-    const tabelaBody = document.querySelector("#tabela-produto tbody");
-    const linhas = tabelaBody.querySelectorAll("tr");
-    const dadosTabela = [];
+    function coletarDadosTabela() {
+        const tabelaBody = document.querySelector("#tabela-produto tbody");
+        const linhas = tabelaBody.querySelectorAll("tr");
+        const dadosTabela = [];
 
-    linhas.forEach(linha => {
-        const colunas = linha.querySelectorAll("td");  
-        const item = {
-            url_image: colunas[0].querySelector("img").src,  
-            altura_unidade: colunas[1].textContent,
-            largura_unidade: colunas[2].textContent,
-            comprimento_unidade: colunas[3].textContent,
-            peso_unidade: colunas[4].textContent,
-            nome_item: colunas[5].textContent,
-            ean: colunas[6].textContent,
-            ncm: colunas[7].textContent,
-            precosugestao: colunas[8].textContent
-        };
-        dadosTabela.push(item);
-    });
+        linhas.forEach(linha => {
+            const colunas = linha.querySelectorAll("td");  
+            const item = {
+                url_image: colunas[0].querySelector("img").src,  
+                altura_unidade: colunas[1].textContent,
+                largura_unidade: colunas[2].textContent,
+                comprimento_unidade: colunas[3].textContent,
+                peso_unidade: colunas[4].textContent,
+                nome_item: colunas[5].textContent,
+                ean: colunas[6].textContent,
+                ncm: colunas[7].textContent,
+                precosugestao: colunas[8].textContent
+            };
+            dadosTabela.push(item);
+        });
 
-    return dadosTabela;
-}
+        return dadosTabela;
+    }
+
+
+    function showLoadingModal() {
+                document.getElementById('loadingModal').style.display = 'flex';
+        }
+
+    function hideLoadingModal() {
+            document.getElementById('loadingModal').style.display = 'none';
+        }
 </script>
 </body>
 </html>

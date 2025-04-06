@@ -3,8 +3,6 @@ import json
 from collections import Counter
 
 
-
-
 class Database:
     def __init__(self, db_name="aplicativo.db"):
         """Inicializa a conexão com o banco de dados."""
@@ -48,46 +46,82 @@ class Database:
             cursor = conn.cursor()
 
             # Verificando dados
-            print("Verificando dados:")
-            print("Form Data:", dados["formData"])
-            print("Tabela Data:", dados["tabelaData"])
+            #print("Verificando dados:")
+            #print("Form Data:", dados["formData"])
+            #print("Tabela Data:", dados["tabelaData"])
 
             # Verificando se 'tabelaData' não está vazio
-            if not dados["tabelaData"]:
-                print("Erro: 'tabelaData' está vazio ou não existe!")
-                return  # Retorna se não houver dados para a tabela
+            #if not dados["tabelaData"]:
+            #    print("Erro: 'tabelaData' está vazio ou não existe!")
+            #    return  # Retorna se não houver dados para a tabela
 
             # Pegando o primeiro item da tabela
-            tabela_item = dados["tabelaData"][0]
+            tab = dados["tabelaData"]
+            print(tab)
+            if not tab :
+                altura_unidade = "#N/D"
+                comprimento_unidade = "#N/D"
+                largura_unidade = "#N/D"
+                peso_unidade = "#N/D"
+                precosugestao = "#N/D"
+                ncm = "#N/D"
+                url_image = "#N/D"
+                nome_item = "#N/D"
+            
+            else:
+                tabela_item = dados["tabelaData"][0]
+                for chave in ["altura_unidade", "largura_unidade", "ncm", "nome_item", "peso_unidade", "precosugestao", "url_image"]:
+                    if chave not in tabela_item:
+                        print(f"Erro: Falta chave {chave} em 'tabelaData'.")
+                        return  # Retorna se alguma chave da tabela estiver ausente
 
-            # Verificando se todas as chaves necessárias estão presentes
-            for chave in ["altura_unidade", "largura_unidade", "ncm", "nome_item", "peso_unidade", "precosugestao", "url_image"]:
-                if chave not in tabela_item:
-                    print(f"Erro: Falta chave {chave} em 'tabelaData'.")
-                    return  # Retorna se alguma chave da tabela estiver ausente
+                    # Convertendo os dados para os tipos corretos (se necessário)
+                    altura_unidade = float(tabela_item["altura_unidade"])  # Convertendo para float
+                    comprimento_unidade = float(tabela_item["comprimento_unidade"])  # Convertendo para float
+                    largura_unidade = float(tabela_item["largura_unidade"])  # Convertendo para float
+                    peso_unidade = float(tabela_item["peso_unidade"])  # Convertendo para float
+                    precosugestao = float(tabela_item["precosugestao"])  # Convertendo para float
+                    ncm = tabela_item["ncm"]  # NCM é provavelmente uma string
+                    url_image = tabela_item["url_image"]  # A URL da imagem permanece como string
+                    nome_item = str(tabela_item["nome_item"])
+                
+            def tratar_valor(valor):
+                if valor is None or valor == "":
+                    return "#N/D"
+                return valor
+            
 
-            # Convertendo os dados para os tipos corretos (se necessário)
-            altura_unidade = float(tabela_item["altura_unidade"])  # Convertendo para float
-            comprimento_unidade = float(tabela_item["comprimento_unidade"])  # Convertendo para float
-            largura_unidade = float(tabela_item["largura_unidade"])  # Convertendo para float
-            peso_unidade = float(tabela_item["peso_unidade"])  # Convertendo para float
-            precosugestao = float(tabela_item["precosugestao"])  # Convertendo para float
-            ncm = tabela_item["ncm"]  # NCM é provavelmente uma string
-            url_image = tabela_item["url_image"]  # A URL da imagem permanece como string
-
-            # Inserindo os dados no banco
             cursor.execute("""
                 INSERT INTO cadastro (
                     nome_completo, cpf, cep, numero, bairro, complemento, uf, cidade, logradouro, 
-                    tipo_devolucao, produto_sku, quantidade, status, data_cadastro, postagem,
+                    tipo_devolucao, produto_sku, quantidade, status, data_cadastro, ticket,
                     altura, largura,comprimento, ncm, nome_item, peso, preco_sugestao, url_image
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                dados["formData"]["nome"], dados["formData"]["cpf"], dados["formData"]["cep"], dados["formData"]["numero"], dados["formData"]["bairro"], 
-                dados["formData"]["complemento"], dados["formData"]["uf"], dados["formData"]["cidade"], dados["formData"]["logradouro"],
-                dados["formData"]["tipo"], dados["formData"]["produto"], dados["formData"]["quantidade"], dados["formData"]["status"], dados["formData"]["data"], dados["formData"]['postagem'],
-                altura_unidade, largura_unidade,comprimento_unidade, ncm, tabela_item["nome_item"], peso_unidade,
-                precosugestao, url_image
+                tratar_valor(dados["formData"]["nome"]),
+                tratar_valor(dados["formData"]["cpf"]),
+                tratar_valor(dados["formData"]["cep"]),
+                tratar_valor(dados["formData"]["numero"]),
+                tratar_valor(dados["formData"]["bairro"]),
+                tratar_valor(dados["formData"]["complemento"]),
+                tratar_valor(dados["formData"]["uf"]),
+                tratar_valor(dados["formData"]["cidade"]),
+                tratar_valor(dados["formData"]["logradouro"]),
+                tratar_valor(dados["formData"]["tipo"]),
+                tratar_valor(dados["formData"]["produto"]),
+                tratar_valor(dados["formData"]["quantidade"]),
+                tratar_valor(dados["formData"]["status"]),
+                tratar_valor(dados["formData"]["data"]),
+                tratar_valor(dados["formData"]['ticket']),
+                tratar_valor(altura_unidade),
+                tratar_valor(largura_unidade),
+                tratar_valor(comprimento_unidade),
+                tratar_valor(ncm),
+                tratar_valor(nome_item),
+                tratar_valor(peso_unidade),
+                tratar_valor(precosugestao),
+                tratar_valor(url_image)
+            
             ))
 
             # Commitando a transação
@@ -115,44 +149,58 @@ class Database:
     def atualizar_status(self, dados):
         conn = self.conectar()
         cursor = conn.cursor()
-        if dados['status'] == "Recebido CD":
+        try:
+            if dados['status'] == "Em devolução":
+                cursor.execute("""
+                    UPDATE cadastro
+                    SET status = ?, postagem = ?
+                    WHERE id = ?""", 
+                    (dados['status'], dados['postagem'], dados['id']))
 
-            cursor.execute("""
-        UPDATE cadastro
-        SET status = ?, data_recebimento = ?, observacao = ?
-        WHERE id = ?
-    """, (dados['status'], dados['data_recebimento'], dados['observacao'], dados['id']))
+            elif dados['status'] == "Recebido CD":
+
+                cursor.execute("""
+                    UPDATE cadastro
+                    SET status = ?, data_recebimento = ?, observacao = ?
+                    WHERE id = ?
+                """, 
+                (dados['status'], dados['data_recebimento'], dados['observacao'], dados['id']))
+            
+            elif dados['status'] == "Manutenção":
+                cursor.execute("""
+            UPDATE cadastro
+            SET status = ?, data_recebimento2 = ?
+            WHERE id = ?
+            """, (dados['status'], dados['data_assistencia'], dados['id']))
         
-        elif dados['status'] == "Manutenção":
-            cursor.execute("""
-        UPDATE cadastro
-        SET status = ?, data_recebimento2 = ?
-        WHERE id = ?
-    """, (dados['status'], dados['data_assistencia'], dados['id']))
-       
 
-        elif dados['status'] == "Expedição":
-            cursor.execute("""
-        UPDATE cadastro
-        SET status = ?, tecnico_responsavel = ?, detalhes_manutencao = ?
-        WHERE id = ?
-    """, (dados['status'], dados['tecnico'], dados['detalhes'],dados['id']))
-            
-        elif dados['status'] == "Enviado":
-            cursor.execute("""
-        UPDATE cadastro
-        SET status = ?, data = ?, rastreamento = ?, tipo = ?, transportadora = ?,  valor_real = ?
-        WHERE id = ?
-    """, (dados['status'], dados['data_enviado'], dados['rastreamento'],dados['tipo'],dados['transportadora'],dados['preco'], dados['id']))
-            
-        elif dados['status'] == "Entregue":
-            cursor.execute("""
-        UPDATE cadastro
-        SET status = ?
-        WHERE id = ?
-    """, (dados['status'], dados['id']))
-        conn.commit()
-        conn.close()
+            elif dados['status'] == "Expedição":
+                cursor.execute("""
+            UPDATE cadastro
+            SET status = ?, tecnico_responsavel = ?, detalhes_manutencao = ?
+            WHERE id = ?
+            """, (dados['status'], dados['tecnico'], dados['detalhes'],dados['id']))
+                
+            elif dados['status'] == "Enviado":
+                cursor.execute("""
+            UPDATE cadastro
+            SET status = ?, data = ?, rastreamento = ?, tipo = ?, transportadora = ?,  valor_real = ?
+            WHERE id = ?
+            """, (dados['status'], dados['data_enviado'], dados['rastreamento'],dados['tipo'],dados['transportadora'],dados['preco'], dados['id']))
+                
+            elif dados['status'] == "Entregue":
+                cursor.execute("""
+            UPDATE cadastro
+            SET status = ?
+            WHERE id = ?
+            """, (dados['status'], dados['id']))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print("Erro ao inserir os dados:", str(e))
+        
+        finally:
+            conn.close()
 
     def contar_status(self):
         """Conta quantos pedidos existem em cada status e retorna um JSON."""
@@ -274,6 +322,6 @@ class Database:
     def inserir_coluna(self):
         conn = sqlite3.connect("aplicativo.db")
         cursor = conn.cursor()
-        cursor.execute("ALTER TABLE cadastro ADD COLUMN comprimento REAL;")
+        cursor.execute("ALTER TABLE cadastro ADD COLUMN ticket REAL;")
         conn.commit()
         resultados = cursor.fetchall()  

@@ -71,7 +71,7 @@ def integracao():
 
 @main_routes.route('/submit_form', methods=['POST'])
 def submit_form():
-
+    print(request.json)
     try:
         dados = request.json  # Pega os dados enviados pelo frontend
         Database().inserir_cadastro(dados)
@@ -163,11 +163,11 @@ def buscar_produto(sku):
 
         # Se a resposta não for bem-sucedida, retorna erro
         if res.status_code != 200:
-            return jsonify({"status": "fail", "error": "Falha na chamada da API"}), 500
+            return jsonify({"status": "fail", "message": "Falha na chamada da API"}), 500
         
         # Retorna os dados recebidos da API externa
-        return jsonify(res.json()), 200
+        return jsonify({"status": "fail"},res.json()), 200
     
     except requests.RequestException as e:
         # Caso haja algum erro na requisição externa
-        return jsonify({"status": "fail", "error": f"Erro ao acessar a API externa: {str(e)}"}), 500
+        return jsonify({"status": "fail", "message": f"Erro ao acessar a API externa: {str(e)}"}), 500

@@ -103,12 +103,19 @@
         
         </div>
         <div class="params">
+            <button class="dev" disabled>
+                <i class="fa-solid fa-truck"></i> Criar Devolução
+            </button>
+            <button class="logistica" disabled>
+                <i class="fa-solid fa-truck"></i> Criar logística
+            </button>
             <button class="printer" disabled>
                 <i class="fa-solid fa-print" ></i> Imprimir
             </button>
             <button class="edit" disabled onclick="editOrder()">
                 <i class="fa-solid fa-edit"></i> Editar
             </button>
+            
         </div>
         <div class="dashboard-container">
         
@@ -242,7 +249,7 @@
                 </div>
             </div>
         </dialog>
-    
+    </main>
 <script>
      
    
@@ -265,7 +272,10 @@
         const checkboxes = document.querySelectorAll('.row-checkbox'); // Seleciona todos os checkboxes
         const printerDiv = document.querySelector('.printer'); // Seleciona o elemento da impressora
         const editDiv = document.querySelector('.edit'); // Seleciona o elemento de edição
-
+        const createShipDiv = document.querySelector('.logistica');
+        const createDevDiv = document.querySelector('.dev');
+        let inreturn = false;
+        let shipping = false
         let receivedCDFound = false; // Flag para indicar se há "Recebido CD"
         let isAnyChecked = false; // Flag para indicar se há qualquer checkbox marcado
 
@@ -287,6 +297,13 @@
                             idToPrint.push(idText);
                         }
                     }
+
+                    if (statusText === "Cadastrado") {
+                        inreturn = true; // Achou pelo menos um "Recebido CD"
+                    } 
+                    if (statusText === "Expedição") {
+                        shipping = true; // Achou pelo menos um "Recebido CD"
+                    } 
                 }
             } else {
                 // Se o checkbox foi desmarcado, remove da lista se existir
@@ -305,15 +322,21 @@
     // Atualiza os botões com base nas flags
         if (isAnyChecked) {
             editDiv.removeAttribute("disabled"); // Sempre habilita a edição
-            if (receivedCDFound) {
-                printerDiv.removeAttribute("disabled"); // Só habilita a impressora se tiver "Recebido CD"
-            } else {
-                printerDiv.setAttribute("disabled", "");
-            }
+            if (inreturn) {createDevDiv.removeAttribute("disabled");}
+            else {createDevDiv.setAttribute("disabled", "");}
+
+            if (receivedCDFound) {printerDiv.removeAttribute("disabled"); } 
+            else {printerDiv.setAttribute("disabled", "");}
+            
+            if (shipping) {createShipDiv.removeAttribute("disabled");}
+            else {createShipDiv.setAttribute("disabled", "");}
         } else {
             // Nenhum checkbox marcado, desabilita tudo
             printerDiv.setAttribute("disabled", "");
             editDiv.setAttribute("disabled", "");
+            createShipDiv.setAttribute("disabled", "");
+            createDevDiv.setAttribute("disabled", "");
+
         }
     }
                 fetch('/dados_retornos')
@@ -331,7 +354,7 @@
                         let tbody = document.getElementById("body-table");
                         tbody.innerHTML = "";
         
-                        const statusFlow = ["Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
+                        const statusFlow = ["Cadastrado","Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
         
                         data.forEach(item => {
                             
@@ -346,6 +369,10 @@
                             // Definir ícone baseado no status
                             let iconClass = "";
                             switch (nextStatus) {
+
+                                case "Cadastrado":
+                                    iconClass = "fa-user";
+                                    break;
                                 case "Em devolução":
                                     iconClass = "fa-undo";
                                     break;
@@ -394,7 +421,7 @@
                                 <td class = "id">${item.id}</td>
                                 <td>${item.data_cadastro}</td>
                                 <td>${item.nome_completo}</td>
-                                <td>${item.postagem}</td>
+                                <td>${item.postagem || 'Não Disponível'}</td>
                                 <td>${item["tipo_devolucao"]}</td>
                                 <td class="status-cell">
                                     <div class="header_status" style="background-color: ${bgColor}; color: white;">
@@ -507,7 +534,7 @@
     }
 
     function getNextStatus(currentStatus) {
-        const statusFlow = ["Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
+        const statusFlow = ["Cadastrado","Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
         const currentIndex = statusFlow.indexOf(currentStatus);
         return currentIndex < statusFlow.length - 1 ? statusFlow[currentIndex + 1] : currentStatus;
     }
@@ -520,6 +547,13 @@
     function loadStatusForm(status) {
     let formHtml = "";
     switch (status) {
+
+        case "Em devolução":
+        formHtml = `
+                <label for="data_recebimento">Postagem:</label>
+                <input type="text" id="postagem" name="postagem">
+            `;
+            break;
         case "Recebido CD":
             formHtml = `
                 <label for="data_recebimento">Data de Recebimento:</label>
@@ -654,8 +688,9 @@ function editOrder() {
         alert("Por favor, selecione exatamente um pedido para editar.");
     }
 }
-// Adiciona um listener ao botão para chamar a função imprimir_etiquetas
+    // Adiciona um listener ao botão para chamar a função imprimir_etiquetas
     document.querySelector('.printer').addEventListener('click', imprimir_etiquetas);
+
     function submitForm(event) {
     event.preventDefault();  // Evita o envio padrão do formulário
     
@@ -681,7 +716,7 @@ function editOrder() {
             const tabela = document.getElementById("body-table");
             tabela.innerHTML = '';  // Limpa os dados antigos
 
-            const statusFlow = ["Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
+            const statusFlow = ["Cadastrado","Em devolução", "Recebido CD", "Manutenção", "Expedição", "Enviado", "Entregue"];
             data.data.forEach(item => {
                 // Criar uma nova linha
                 const row = document.createElement("tr");
@@ -826,6 +861,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lockBtn.textContent = '🔒'; // Ícone de cadeado travado
     }
 });
+
 </script>
 </body>
 </html>

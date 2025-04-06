@@ -528,3 +528,198 @@ button:hover{
     text-decoration: none;
     cursor: pointer;
 }
+
+#loadingModal {
+    display: none; /* Inicialmente oculto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fundo semitransparente */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 50px;
+    max-width: 50%;
+}
+
+/* Estilos para o spinner */
+.spinner {
+    border: 9px solid #f3f3f3; /* Cor do fundo */
+    border-top: 9px solid #3498db; /* Cor do topo do spinner */
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos para o botão */
+button {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Estilos para a tela principal */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .loading-content {
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+
+.response{
+    position: absolute;
+    top: 55px;
+    right: 20px;
+    border-radius: 12px;
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transform: translateX(calc(100% + 30px));
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+}
+
+.response.sucess{
+    border-left: 6px solid #218801;
+    background: rgba(198, 241, 211, 0.616);
+
+}
+.response.fail{
+    border-left: 6px solid #e42a09;
+    background: rgba(245, 181, 181, 0.63); /* 50% de opacidade */
+}
+.response.active{
+    transform: translateX(0%);
+}
+.response .response-content{
+    display: flex;
+    align-items: center;
+}
+.response-content .check{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 35px;
+    width: 35px;
+    background-color: #4070f4;
+    color: #fff;
+    font-size: 20px;
+    border-radius: 50%;
+}
+
+.response-content .response-message{
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
+}
+.response-message .text{
+    font-size: 20px;
+    font-weight: 400;;
+    color: #666666;
+}
+
+.response-message.sucess {
+
+    color: #065c19;
+}
+
+.response-message.fail {
+
+    color: #5c0606;
+}
+
+.response .close{
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+.response .close:hover{
+    opacity: 1;
+}
+.response .response-progress{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #ddd;
+}
+.response .response-progress:before{
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+   
+}
+
+.response-progress.sucess:before{
+    background-color: #218801;
+}
+
+.response-progress.fail:before{
+    background-color: #e42a09;
+}
+
+.response-progress.active:before{
+    animation: progress 2s linear forwards;
+}
+@keyframes progress {
+    100%{
+        right: 100%;
+    }
+}
+button{
+    padding: 12px 20px;
+    font-size: 20px;
+    outline: none;
+    border: none;
+    background-color: #8f0e0e;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover{
+    background-color: #0e3a72;
+}
+.response.active {
+    opacity: 1;
+    transition: opacity 2s;
+}
+
+.response-progress.active {
+    width: 100%;
+    transition: width 2s;
+}
