@@ -46,6 +46,7 @@
                 <div class="card">
                     <h3>Informações do retorno</h3>
                     <p><strong>ID de Devolução:</strong> <span id="id-retorno"></span></p>
+                    <p><strong>Ticket:</strong> <span id="ticket"></span></p>
                     <p><strong>Tipo de Retorno:</strong> <span id="tipo-retorno"></span></p>
                     <p><strong>Data de cadastro:</strong> <span id="data-cadastro"></span></p>
                     <p><strong>Data de Recebimento:</strong> <span id="data-recebimento"></span></p>
@@ -151,13 +152,16 @@
             console.log(order); // Verifique os dados retornados
         
             document.getElementById("id-retorno").textContent = order.id;    
+            document.getElementById("ticket").textContent = order.ticket || "Não disponível";
             document.getElementById("tipo-retorno").textContent = order.tipo_devolucao;
             document.getElementById("data-cadastro").textContent = order.data_cadastro;
-            document.getElementById("data-recebimento").textContent = order.data_recebimento || "Não disponpivel";
-            document.getElementById("postagem").textContent = order.postagem || "Não disponpivel";
+            document.getElementById("data-recebimento").textContent = order.data_recebimento || "Não disponível";
+            document.getElementById("postagem").textContent = order.postagem || "Não disponível";
+            
 
             document.getElementById("customer-name").textContent = order.nome_completo;
             document.getElementById("cpf").textContent = order.cpf;
+            document.getElementById("email").textContent = order.email;
             document.getElementById("address").textContent = `${order.logradouro}, ${order.numero} ,${order.complemento}, ${order.bairro}`;
             document.getElementById("uf").textContent = `${order.cidade}, ${order.uf}`
             document.getElementById("cep").textContent = order.cep;

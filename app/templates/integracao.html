@@ -191,19 +191,16 @@ document.querySelector('.lock-btn').addEventListener('click', () => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+
     const sidebar = document.querySelector('.sidebar');
     const lockBtn = document.querySelector('.lock-btn');
-    const lockStatus = localStorage.getItem('sidebarLocked');
-    
-    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
-    if (lockStatus === 'true') {
+
+    if (localStorage.sidebarLocked === 'true') {
         sidebar.classList.add('locked');
-        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+        lockBtn.textContent = '🔓';
     } else {
-        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+        lockBtn.textContent = '🔒';
     }
-});
 
     </script>
 </html>

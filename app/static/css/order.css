@@ -9,10 +9,15 @@ body {
     display: flex;
     min-height: 100vh;
 }
+.logo {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
 
 /* Menu Lateral */
 .sidebar {
-    width: 60px;
+    width: 150px; /* Largura inicial da sidebar */
     background: #2c3e50;
     color: white;
     padding: 10px;
@@ -27,10 +32,15 @@ body {
     align-items: center;
 }
 
-.sidebar:hover:not(.locked) {
-    width: 150px;
+.sidebar:not(.locked) {
+    width: 60px;
+    
 }
+.sidebar:not(.locked) li a span {
+    display: none !important;
+  }
 
+/* Quando travada, fixa a largura */
 .sidebar.locked {
     width: 150px !important;
 }
@@ -41,9 +51,14 @@ body {
     margin-left: -5px;
 }
 
-.sidebar:hover:not(.locked) .logo-img,
+
 .sidebar.locked .logo-img {
     width: 120px;
+}
+
+.sidebar.locked .menu-items a span {
+    display: inline-block;
+    margin-left: 10px;
 }
 
 .menu-items {
@@ -76,11 +91,6 @@ body {
     display: none;
 }
 
-.sidebar:hover:not(.locked) .menu-items a span,
-.sidebar.locked .menu-items a span {
-    display: inline-block;
-    margin-left: 10px;
-}
 
 .lock-btn {
     background: none;

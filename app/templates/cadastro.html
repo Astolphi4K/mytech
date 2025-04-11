@@ -39,7 +39,7 @@
     </header>
 
     <!-- Conteúdo Principal -->
-    <main class="main-content">
+    <div class="main-content">
         <div class = "content">
             <div class="form-container">
                 <h2>Formulário de Cadastro</h2>
@@ -158,7 +158,7 @@
             <i class="fa-solid fa-xmark close"></i>
             <div class="progress"></div>
         </div>
-    </main>
+    </div>
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -364,7 +364,7 @@
                 window.location.href = "/";
             }
 
-            document.querySelector('.lock-btn').addEventListener('click', () => {
+    document.querySelector('.lock-btn').addEventListener('click', () => {
     const sidebar = document.querySelector('.sidebar');
     const lockBtn = document.querySelector('.lock-btn');
     sidebar.classList.toggle('locked');
@@ -379,19 +379,15 @@
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.querySelector('.sidebar');
     const lockBtn = document.querySelector('.lock-btn');
-    const lockStatus = localStorage.getItem('sidebarLocked');
-    
-    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
-    if (lockStatus === 'true') {
+
+    if (localStorage.sidebarLocked === 'true') {
         sidebar.classList.add('locked');
-        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+        lockBtn.textContent = '🔓';
     } else {
-        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+        lockBtn.textContent = '🔒';
     }
-});
 
 function buscar_item() {
     showLoadingModal();  // Exibe o modal de carregamento

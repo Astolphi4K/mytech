@@ -61,7 +61,7 @@
                 <!-- Card Postagem -->
                 <div class="dashboard-card">
                     <div class="card-header">
-                        <input id="postagem" name = "postagem" placeholder="Código de postagem" type = "text">
+                        <input id="ticket" name = "ticket" placeholder="Ticket" type = "text">
                     </div>
                 </div>
     
@@ -84,6 +84,7 @@
                         <select id="situacao" name="situacao">
                             <option value="" selected hidden>Status</option>
                             <option value=""></option>
+                            <option value="Cadastrado">Cadastrado</option>
                             <option value="Em devolução">Em devolução</option>
                             <option value="Recebido CD">Recebido CD</option>
                             <option value="Manutenção">Manutenção</option>
@@ -128,7 +129,7 @@
                         <th>ID</th>
                         <th>Data</th>
                         <th>Nome</th>
-                        <th>N Postagem</th>
+                        <th>Ticket</th>
                         <th>Tipo</th>
                         <th>Situação</th>
                         <th class="ultima_coluna">Ações</th>
@@ -421,7 +422,7 @@
                                 <td class = "id">${item.id}</td>
                                 <td>${item.data_cadastro}</td>
                                 <td>${item.nome_completo}</td>
-                                <td>${item.postagem || 'Não Disponível'}</td>
+                                <td>${item.ticket || '#N/D'}</td>
                                 <td>${item["tipo_devolucao"]}</td>
                                 <td class="status-cell">
                                     <div class="header_status" style="background-color: ${bgColor}; color: white;">
@@ -780,7 +781,7 @@ function editOrder() {
                     <td class="id">${item.id}</td>
                     <td>${item.data_cadastro}</td>
                     <td>${item.nome_completo}</td>
-                    <td>${item.postagem}</td>
+                    <td>${item.ticket}</td>
                     <td>${item["tipo_devolucao"]}</td>
                     <td class="status-cell">
                         <div class="header_status" style="background-color: ${bgColor}; color: white;">
@@ -848,19 +849,15 @@ document.querySelector('.lock-btn').addEventListener('click', () => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const sidebar = document.querySelector('.sidebar');
+const sidebar = document.querySelector('.sidebar');
     const lockBtn = document.querySelector('.lock-btn');
-    const lockStatus = localStorage.getItem('sidebarLocked');
-    
-    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
-    if (lockStatus === 'true') {
+
+    if (localStorage.sidebarLocked === 'true') {
         sidebar.classList.add('locked');
-        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+        lockBtn.textContent = '🔓';
     } else {
-        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+        lockBtn.textContent = '🔒';
     }
-});
 
 </script>
 </body>

@@ -13,13 +13,12 @@ body {
 
 .logo {
     font-size: 24px;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     text-align: center;
 }
 
-
 .sidebar {
-    width: 60px; 
+    width: 150px; /* Largura inicial da sidebar */
     background: #2c3e50;
     color: white;
     padding: 10px;
@@ -34,24 +33,38 @@ body {
     align-items: center;
 }
 
-
-.sidebar:hover:not(.locked) {
-    width: 150px;
+.sidebar:not(.locked) {
+    width: 60px;
+    
 }
+.sidebar:not(.locked) li a span {
+    display: none !important;
+  }
 
+/* Quando travada, fixa a largura */
 .sidebar.locked {
     width: 150px !important;
 }
 
 .logo-img {
-    width: 60px;
+    width: 50px;
     transition: width 0.4s ease;
     margin-left: -5px;
 }
 
-.sidebar:hover:not(.locked) .logo-img,
+
 .sidebar.locked .logo-img {
     width: 120px;
+}
+
+.sidebar.locked .menu-items a span {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.sidebar-locked .sidebar {
+    transform: translateX(0); /* travada/visível */
+    transition: none; /* sem animação */
 }
 
 .menu-items {
@@ -82,12 +95,6 @@ body {
 
 .menu-items a span {
     display: none;
-}
-
-.sidebar:hover:not(.locked) .menu-items a span,
-.sidebar.locked .menu-items a span {
-    display: inline-block;
-    margin-left: 10px;
 }
 
 

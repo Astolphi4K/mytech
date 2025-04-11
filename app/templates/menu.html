@@ -392,34 +392,30 @@ document.addEventListener("DOMContentLoaded", function() {
 }
 
 
-document.querySelector('.lock-btn').addEventListener('click', () => {
     const sidebar = document.querySelector('.sidebar');
     const lockBtn = document.querySelector('.lock-btn');
-    sidebar.classList.toggle('locked');
-    
-    // Salvar o estado da sidebar no localStorage
-    if (sidebar.classList.contains('locked')) {
-        localStorage.setItem('sidebarLocked', 'true');
-        lockBtn.textContent = '🔓'; // Muda para o ícone de cadeado destravado
-    } else {
-        localStorage.setItem('sidebarLocked', 'false');
-        lockBtn.textContent = '🔒'; // Muda para o ícone de cadeado travado
-    }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-    const sidebar = document.querySelector('.sidebar');
-    const lockBtn = document.querySelector('.lock-btn');
-    const lockStatus = localStorage.getItem('sidebarLocked');
-    
-    // Se estiver travada, adiciona a classe 'locked' e altera o ícone para '🔓'
-    if (lockStatus === 'true') {
+    if (localStorage.sidebarLocked === 'true') {
         sidebar.classList.add('locked');
-        lockBtn.textContent = '🔓'; // Ícone de cadeado destravado
+        lockBtn.textContent = '🔓';
     } else {
-        lockBtn.textContent = '🔒'; // Ícone de cadeado travado
+        lockBtn.textContent = '🔒';
     }
-});
+
+    document.querySelector('.lock-btn').addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        const lockBtn = document.querySelector('.lock-btn');
+        sidebar.classList.toggle('locked');
+        
+        // Salvar o estado da sidebar no localStorage
+        if (sidebar.classList.contains('locked')) {
+            localStorage.setItem('sidebarLocked', 'true');
+            lockBtn.textContent = '🔓'; // Muda para o ícone de cadeado destravado
+        } else {
+            localStorage.setItem('sidebarLocked', 'false');
+            lockBtn.textContent = '🔒'; // Muda para o ícone de cadeado travado
+        }
+    });
     </script>
 </body>
 </html>

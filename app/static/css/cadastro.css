@@ -11,8 +11,14 @@ body {
     background-color: #f0f2f5;
 }
 
+.logo {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
 .sidebar {
-    width: 60px;
+    width: 150px; /* Largura inicial da sidebar */
     background: #2c3e50;
     color: white;
     padding: 10px;
@@ -27,10 +33,15 @@ body {
     align-items: center;
 }
 
-.sidebar:hover:not(.locked) {
-    width: 150px;
+.sidebar:not(.locked) {
+    width: 60px;
+    
 }
+.sidebar:not(.locked) li a span {
+    display: none !important;
+  }
 
+/* Quando travada, fixa a largura */
 .sidebar.locked {
     width: 150px !important;
 }
@@ -41,11 +52,20 @@ body {
     margin-left: -5px;
 }
 
-.sidebar:hover:not(.locked) .logo-img,
+
 .sidebar.locked .logo-img {
     width: 120px;
 }
 
+.sidebar.locked .menu-items a span {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.sidebar-locked .sidebar {
+    transform: translateX(0); /* travada/visível */
+    transition: none; /* sem animação */
+}
 .menu-items {
     list-style: none;
     padding: 0;
@@ -76,11 +96,8 @@ body {
     display: none;
 }
 
-.sidebar:hover:not(.locked) .menu-items a span,
-.sidebar.locked .menu-items a span {
-    display: inline-block;
-    margin-left: 10px;
-}
+
+
 
 .lock-btn {
     background: none;
@@ -167,7 +184,7 @@ body {
     padding: 17px;
     min-height: calc(100vh - 50px); 
     width: calc(100% - 150px); 
-    max-width: px; 
+    max-width: 100%; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -262,40 +279,6 @@ body {
 
 .form-row .form-group {
     flex: 1;
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-        max-width: 100%;
-        border-radius: 0;
-    }
-
-    .sidebar {
-        display: none; /* Esconder sidebar em telas pequenas */
-    }
-
-    .header {
-        left: 0;
-    }
-}
-
-@media (max-width: 1200px) {
-    .main-content {
-        max-width: 100%; /* Ocupa toda a largura em telas menores */
-        padding: 20px; /* Reduz o padding */
-    }
-
-    .form-container {
-        max-width: 100%; /* Ocupa toda a largura em telas menores */
-        padding: 20px; /* Reduz o padding */
-    }
 }
 
 
@@ -434,9 +417,7 @@ button{
     cursor: pointer;
     transition: 0.3s;
 }
-button:hover{
-    background-color: #0e3a72;
-}
+
 .toast.active ~ button{
     pointer-events: none;
 }
@@ -711,9 +692,7 @@ button{
     cursor: pointer;
     transition: 0.3s;
 }
-button:hover{
-    background-color: #0e3a72;
-}
+
 .response.active {
     opacity: 1;
     transition: opacity 2s;

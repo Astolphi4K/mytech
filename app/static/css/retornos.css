@@ -10,9 +10,14 @@ body {
     min-height: 100vh;
     background: linear-gradient(0deg, rgba(179,179,179,1) 0%, rgba(203,203,203,0.969625350140056) 35%, rgba(238,238,238,1) 100%);
 }
+.logo {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
 
 .sidebar {
-    width: 60px; /* Largura inicial da sidebar */
+    width: 150px; /* Largura inicial da sidebar */
     background: #2c3e50;
     color: white;
     padding: 10px;
@@ -27,10 +32,13 @@ body {
     align-items: center;
 }
 
-/* Expande ao passar o mouse, exceto se estiver travada */
-.sidebar:hover:not(.locked) {
-    width: 150px;
+.sidebar:not(.locked) {
+    width: 60px;
+    
 }
+.sidebar:not(.locked) li a span {
+    display: none !important;
+  }
 
 /* Quando travada, fixa a largura */
 .sidebar.locked {
@@ -43,12 +51,20 @@ body {
     margin-left: -5px;
 }
 
-/* Mantém o logo grande quando travada */
-.sidebar:hover:not(.locked) .logo-img,
+
 .sidebar.locked .logo-img {
     width: 120px;
 }
 
+.sidebar.locked .menu-items a span {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.sidebar-locked .sidebar {
+    transform: translateX(0); /* travada/visível */
+    transition: none; /* sem animação */
+}
 .menu-items {
     list-style: none;
     padding: 0;
@@ -79,11 +95,6 @@ body {
     display: none;
 }
 
-.sidebar:hover:not(.locked) .menu-items a span,
-.sidebar.locked .menu-items a span {
-    display: inline-block;
-    margin-left: 10px;
-}
 
 /* Botão de travamento */
 .lock-btn {
@@ -609,9 +620,6 @@ button {
     border-radius: 2px;
 }
 
-button:hover {
-    background-color: #358e9e;
-}
 
 button:disabled {
     background-color: #ccc;
@@ -674,5 +682,4 @@ button:disabled {
     font-size: 15px; /* Tamanho do ícone ajustado */
     margin-right: 8px; /* Menor espaço entre ícone e texto */
 }
-
 

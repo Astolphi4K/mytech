@@ -95,8 +95,8 @@ class Database:
                 INSERT INTO cadastro (
                     nome_completo, cpf, cep, numero, bairro, complemento, uf, cidade, logradouro, 
                     tipo_devolucao, produto_sku, quantidade, status, data_cadastro, ticket,
-                    altura, largura,comprimento, ncm, nome_item, peso, preco_sugestao, url_image
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    altura, largura,comprimento, ncm, nome_item, peso, preco_sugestao, url_image,email
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 tratar_valor(dados["formData"]["nome"]),
                 tratar_valor(dados["formData"]["cpf"]),
@@ -120,7 +120,8 @@ class Database:
                 tratar_valor(nome_item),
                 tratar_valor(peso_unidade),
                 tratar_valor(precosugestao),
-                tratar_valor(url_image)
+                tratar_valor(url_image),
+                tratar_valor(dados["formData"]["email"])
             
             ))
 
@@ -272,7 +273,7 @@ class Database:
         query = "SELECT * FROM cadastro WHERE 1=1"
         parametros = []
 
-        # Adicionando a condição para o intervalo de datas
+        # 
         if filtro.get("data_inicio") and filtro.get("data_fim"):
             query += " AND data_cadastro BETWEEN ? AND ?"
             parametros.extend([filtro["data_inicio"], filtro["data_fim"]])
@@ -283,10 +284,9 @@ class Database:
             query += " AND data_cadastro <= ?"
             parametros.append(filtro["data_fim"])
 
-        # Adicionando filtros para as outras colunas da tabela
-        if filtro.get("postagem"):
-            query += " AND postagem = ?"
-            parametros.append(filtro["postagem"])  # Busca exata
+        if filtro.get("ticket"):
+            query += " AND ticket = ?"
+            parametros.append(filtro["ticket"])  # Busca exata
         if filtro.get("tipo"):
             query += " AND tipo_devolucao = ?"
             parametros.append(filtro["tipo"])  # Busca exata
@@ -322,6 +322,6 @@ class Database:
     def inserir_coluna(self):
         conn = sqlite3.connect("aplicativo.db")
         cursor = conn.cursor()
-        cursor.execute("ALTER TABLE cadastro ADD COLUMN ticket REAL;")
+        cursor.execute("ALTER TABLE cadastro ADD COLUMN email TEXT;")
         conn.commit()
         resultados = cursor.fetchall()  
